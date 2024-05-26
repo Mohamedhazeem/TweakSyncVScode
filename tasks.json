@@ -1,0 +1,19 @@
+// tasks.json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Hazeem",
+      "type": "shell",
+      "command": "e hazeem",
+      "group": {
+        "kind": "terminal",
+        "isExecutionButton": false,
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always"
+      }
+    }
+  ]
+}
