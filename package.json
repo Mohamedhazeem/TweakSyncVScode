@@ -34,6 +34,10 @@
       {
         "command": "vscode.removeTemporaryIds",
         "title": "remove Temp IDs"
+      },
+      {
+        "command": "vscode.findcss",
+        "title": "Find CSS"
       }
     ]
   },
