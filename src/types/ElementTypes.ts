@@ -1,3 +1,5 @@
+import { HTMLElement } from "node-html-parser";
+
 export interface ElementDetails {
   action?: string;
   details: {
@@ -41,3 +43,14 @@ export interface ElementStyles {
 }
 
 export type WebSocketMessage = ElementDetails | ElementStyles;
+
+export type CreateHtmlElement = {
+  fileExtension: string;
+  newText: string;
+  tagName: string | undefined;
+  temporaryId: string | null | undefined;
+  attributes: { [key: string]: string } | undefined;
+  updatedTextContent: string | null | undefined;
+  element: HTMLElement;
+  currentText: string;
+};

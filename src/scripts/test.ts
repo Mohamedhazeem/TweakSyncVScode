@@ -13,7 +13,7 @@ interface ExternalStyles {
   pseudoClassStyles: { [key: string]: { [key: string]: string } };
 }
 
-export interface ElementStyles {
+interface ElementStyles {
   inline: InlineStyles;
   external: ExternalStyles;
   temporaryId?: string | null;

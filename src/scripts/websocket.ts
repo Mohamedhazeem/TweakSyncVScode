@@ -1,7 +1,6 @@
 import WebSocket from "ws";
 import { handleWebSocketMessage } from "./server";
-
-export const PORT = 8000;
+import { PORT } from "../utils/constant";
 
 const ws = new WebSocket.Server({ port: PORT });
 interface ConnectedClient {
