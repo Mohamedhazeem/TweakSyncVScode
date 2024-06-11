@@ -13,11 +13,17 @@ export const startServer = () => {
   ws.on("connection", function (socket) {
     connectedClients.push({ socket });
     console.log("WebSocket connection established from VS Code extension");
+
     socket.on("message", async (message) => {
-      const parsedMessage = JSON.parse(message.toString());
-      console.log(parsedMessage);
-      await handleWebSocketMessage(parsedMessage);
+      try {
+        const parsedMessage = JSON.parse(message.toString());
+        console.log(parsedMessage);
+        await handleWebSocketMessage(parsedMessage);
+      } catch (error) {
+        console.error("Error handling WebSocket message:", error);
+      }
     });
+
     socket.on("close", () => {
       const index = connectedClients.findIndex(
         (client) => client.socket === socket
@@ -26,9 +32,27 @@ export const startServer = () => {
         connectedClients.splice(index, 1);
       }
     });
+
+    socket.on("error", (error) => {
+      console.error("WebSocket client error:", error);
+    });
+  });
+
+  ws.on("error", (error) => {
+    console.error("WebSocket server error:", error);
+  });
+
+  ws.on("close", () => {
+    console.log("WebSocket server closed");
   });
 };
 
 export const stopServer = () => {
-  ws.close();
+  ws.close((err) => {
+    if (err) {
+      console.error("Error closing WebSocket server:", err);
+    } else {
+      console.log("WebSocket server stopped");
+    }
+  });
 };
