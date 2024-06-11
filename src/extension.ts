@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
-import { startServer, stopServer, sendMessageToChrome } from "./server/server";
-import { TempororyIdMode, TemporaryIds } from "./server/temporaryId";
-import { findAndReplaceCssSelectors, findCssFiles } from "./server/test";
+import { TempororyIdMode, TemporaryIds } from "./scripts/temporaryId";
+import { findAndReplaceCssSelectors } from "./scripts/test";
+import { startServer, stopServer } from "./scripts/websocket";
 
 export function activate(context: vscode.ExtensionContext) {
   let server = vscode.commands.registerCommand("vscode.startserver", () => {
@@ -13,14 +13,6 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.window.showInformationMessage("Hello World from vscode!");
   });
   //#endregion
-
-  let Message = vscode.commands.registerCommand(
-    "vscode.sendMessageToChrome",
-    () => {
-      console.log("vscode.sendMessageToChrome");
-      sendMessageToChrome();
-    }
-  );
   let injectTemporaryId = vscode.commands.registerCommand(
     "vscode.injectTemporaryIds",
     () => {
@@ -83,7 +75,6 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(disposable);
   context.subscriptions.push(server);
-  context.subscriptions.push(Message);
   context.subscriptions.push(injectTemporaryId);
   context.subscriptions.push(removeTemporaryId);
   context.subscriptions.push(findcss);

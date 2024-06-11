@@ -24,10 +24,6 @@
         "title": "Start Server"
       },
       {
-        "command": "vscode.sendMessageToChrome",
-        "title": "Send Message To Chrome"
-      },
-      {
         "command": "vscode.injectTemporaryIds",
         "title": "Inject Temp IDs"
       },
