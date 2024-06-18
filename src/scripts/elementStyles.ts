@@ -1,53 +1,32 @@
 import * as vscode from "vscode";
 import { ElementStyles } from "../types/ElementTypes";
-import { updateRule } from "../utils/updateRule";
+import { updateCSSContent } from "./updateCSSContent";
 
 export async function elementStyles(message: ElementStyles) {
-  const { temporaryId, inline, external } = message.styles;
+  const { styles } = message;
+  const { inline, external, temporaryId } = styles;
   const files = await vscode.workspace.findFiles("**/*.{css}");
-
+  let updatedCSS: string;
   for (const file of files) {
     console.log(`Processing file: ${file.toString()}`);
-    const content = await vscode.workspace.fs.readFile(file);
-    let contentString = content.toString();
-    if (external && typeof external === "object") {
-      Object.entries(external).forEach(([styleType, styleContent]) => {
-        if (styleContent && typeof styleContent === "object") {
-          Object.entries(styleContent).forEach(([selector, rules]) => {
-            console.log(`selector and rules: ${selector} and ${rules}`);
-            if (
-              rules &&
-              typeof rules === "object" &&
-              Object.keys(rules).length > 0
-            ) {
-              if (contentString.includes(selector)) {
-                console.log(
-                  `Found selector ${selector} in file ${file.toString()}`
-                );
-                console.log(
-                  `Existing rules: ${contentString.match(
-                    new RegExp(selector + "\\s*{[^}]*}")
-                  )}`
-                );
-                console.log(`New rules: ${JSON.stringify(rules)}`);
 
-                contentString = updateRule(selector, rules, contentString);
-              } else {
-                console.log(
-                  `Selector ${selector} not found in file ${file.toString()}`
-                );
-                /// This below code used to add new rules if not found
-                //contentString = createRule(selector, rules, contentString);
-              }
-            }
-          });
-        } else {
-          console.log(`Style type: ${styleType}`);
-          console.log(`Style content: ${styleContent}`);
-        }
+    try {
+      const document = await vscode.workspace.openTextDocument(file);
+      let contentString = document.getText();
+
+      updatedCSS = await updateCSSContent(contentString, external);
+      console.warn(`${updatedCSS}`);
+      const fullRange = new vscode.Range(
+        document.positionAt(0),
+        document.positionAt(contentString.length)
+      );
+      await vscode.window.showTextDocument(document).then((editor) => {
+        editor.edit((editBuilder) => {
+          editBuilder.replace(fullRange, updatedCSS);
+        });
       });
+    } catch (error) {
+      console.error(`Error processing file ${file.toString()}: ${error}`);
     }
-    const updatedContent = Buffer.from(contentString, "utf-8");
-    await vscode.workspace.fs.writeFile(file, updatedContent);
   }
 }

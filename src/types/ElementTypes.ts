@@ -42,6 +42,13 @@ export interface ElementStyles {
   };
 }
 
+export type SelectorProcessType = [
+  string,
+  {
+    [key: string]: string;
+  }
+];
+
 export type WebSocketMessage = ElementDetails | ElementStyles;
 
 export type CreateHtmlElement = {
