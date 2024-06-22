@@ -61,3 +61,6 @@ export type CreateHtmlElement = {
   element: HTMLElement;
   currentText: string;
 };
+export type eventHandlerType = {
+  [key: string]: string;
+};

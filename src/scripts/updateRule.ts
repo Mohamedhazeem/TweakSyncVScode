@@ -1,11 +1,13 @@
-import postcss from "postcss";
-
+import postcss, { Root } from "postcss";
+import safeParser from "postcss-safe-parser";
 export async function updateRule(
   css: string,
   selector: string,
   newValues: { [key: string]: string }
 ): Promise<string> {
-  const root = postcss.parse(css);
+  // const root = postcss.parse(css);
+  const root: Root = safeParser(css);
+
   // let ruleFound = false;
   root.walkAtRules((atRule) => {
     if (atRule.name === "media") {
