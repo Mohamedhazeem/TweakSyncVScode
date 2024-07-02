@@ -1,14 +1,57 @@
 import { HTMLElement } from "node-html-parser";
 import { CreateHtmlElement, eventHandlerType } from "../types/ElementTypes";
 import { eventAttributes, selfClosingTags } from "./constant";
-
+export const attributeCamelCase: { [key: string]: string } = {
+  accesskey: "accessKey",
+  autocapitalize: "autoCapitalize",
+  autofocus: "autoFocus",
+  class: "className",
+  contenteditable: "contentEditable",
+  enterkeyhint: "enterKeyHint",
+  exportparts: "exportParts",
+  inputmode: "inputMode",
+  // popover: "popover",
+  spellcheck: "spellCheck",
+  tabindex: "tabIndex",
+  minlength: "minLength",
+  maxlength: "maxLength",
+  hreflang: "hrefLang",
+  referrerpolicy: "referrerPolicy",
+  autoplay: "autoPlay",
+  controlslist: "controlsList",
+  crossorigin: "crossOrigin",
+  disableremoteplayback: "disableRemotePlayback",
+  formaction: "formAction",
+  formenctype: "formEncType",
+  formmethod: "formMethod",
+  formnovalidate: "formNovalidate",
+  formtarget: "formTarget",
+  datetime: "dateTime",
+  "accept-charset": "acceptCharset",
+  autocomplete: "autoComplete",
+  enctype: "encType",
+  novalidate: "noValidate",
+  allowfullscreen: "allowFullScreen",
+  // browsingtopics: "browsingTopics",
+  // credentialless: "credentialLess"
+  srcdoc: "srcDoc",
+  srcset: "srcSet",
+  usemap: "useMap",
+  ismap: "isMap",
+  fetchpriority: "fetchPriority",
+  readonly: "readOnly",
+  charset: "charSet",
+  colspan: "colSpan",
+  rowspan: "rowSpan",
+  srclang: "srcLang",
+};
 const mapEventAttributes = (key: string, fileExtension: string): string => {
   if ([".tsx", ".jsx"].includes(fileExtension)) {
     if (key.startsWith("on")) {
       return key.slice(0, 2) + key.charAt(2).toUpperCase() + key.slice(3); // Convert "onclick" to "onClick"
     }
-    if (key === "class") {
-      return "className";
+    if (attributeCamelCase.hasOwnProperty(key)) {
+      return attributeCamelCase[key];
     }
   }
   return key;
@@ -30,7 +73,10 @@ const formatAttributes = (
       const formattedValue =
         key.startsWith("on") && [".tsx", ".jsx"].includes(fileExtension)
           ? `${value}`
+          : typeof value === "number"
+          ? `{${value}}`
           : `"${value}"`;
+      // : `"${value}"`;
       return `${formattedKey}=${formattedValue}`;
     })
     .join(" ");
