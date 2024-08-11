@@ -5,6 +5,7 @@ import { injectTemporaryId, removeTemporaryId } from "./disposable/temporaryIdDi
 import { webViewPanelOpen } from "./disposable/webViewDisposable";
 
 export function activate(context: vscode.ExtensionContext) {
+  let currentPanel: vscode.WebviewPanel | undefined = undefined;
   let initiateServer = vscode.commands.registerCommand("vscode.startserver", () => {
     startServer();
   });
@@ -17,7 +18,7 @@ export function activate(context: vscode.ExtensionContext) {
   //       console.warn("Failed to find and replace CSS selectors", err);
   //     });
   // });
-  const sidePanel = webViewPanelOpen(context);
+  const sidePanel = webViewPanelOpen(currentPanel, context);
   context.subscriptions.push(initiateServer);
   context.subscriptions.push(injectTemporaryId);
   context.subscriptions.push(removeTemporaryId);
