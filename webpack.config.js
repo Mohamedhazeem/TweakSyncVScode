@@ -3,6 +3,7 @@
 'use strict';
 
 const path = require('path');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 //@ts-check
 /** @typedef {import('webpack').Configuration} WebpackConfig **/
@@ -45,4 +46,40 @@ const extensionConfig = {
     level: "log", // enables logging required for problem matchers
   },
 };
-module.exports = [ extensionConfig ];
+/** @type WebpackConfig */
+const webviewConfig = {
+  target: 'web',
+  mode: 'development',
+  entry: './src/webview/index.tsx', // Entry point for your React webview
+  output: {
+    path: path.resolve(__dirname, 'out', 'webview'),
+    filename: 'bundle.js',
+  },
+  resolve: {
+    extensions: ['.ts', '.tsx', '.js', '.jsx'],
+  },
+  module: {
+    rules: [
+      {
+        test: /\.(ts|tsx)$/,
+        exclude: /node_modules/,
+        use: 'babel-loader', // Use Babel to transpile TypeScript and React
+      },
+      {
+        test: /\.css$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+            'css-loader',
+            'postcss-loader'
+        ]
+    },
+    ],
+  },
+  plugins: [
+    new MiniCssExtractPlugin({
+        filename: 'styles/index.css', // Output CSS file to the `styles` directory inside `out/webview`
+    }),
+],
+  devtool: 'source-map',
+};
+module.exports = [ extensionConfig,webviewConfig ];

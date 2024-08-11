@@ -1,0 +1,8 @@
+/* src/webview/styles/tailwind.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.check {
+  @apply text-2xl font-extrabold font-mono text-orange-600;
+}
