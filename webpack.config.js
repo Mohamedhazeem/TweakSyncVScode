@@ -56,6 +56,9 @@ const webviewConfig = {
     filename: 'bundle.js',
   },
   resolve: {
+    alias: {
+      'src': path.resolve(__dirname, 'src')
+    },
     extensions: ['.ts', '.tsx', '.js', '.jsx'],
   },
   module: {
