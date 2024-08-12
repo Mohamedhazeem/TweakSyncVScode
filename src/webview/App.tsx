@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "../components/ui/button";
 import { getVsCodeApi } from "../utils/vscodeApi";
-import FileUriEditRemove from "./components/FileUriEditRemove";
+import FileUriEditRemove from "./components/FileUriEditAndRemove";
+import FileUriHolder from "./components/FileUriHolder";
 
 const App = () => {
   const vscode = getVsCodeApi();
@@ -42,11 +43,7 @@ const App = () => {
         {!isServerRunning ? "Start TweakSync" : "End TweakSync"}
       </Button>
       <Button onClick={collectFiles}>Collect Files</Button>
-      <div className="FileUriHolder">
-        {files.map((file) => (
-          <FileUriEditRemove key={file} file={file} />
-        ))}
-      </div>
+      <FileUriHolder files={files} />
     </>
   );
 };

@@ -81,6 +81,12 @@
   @apply bg-gray-400 flex flex-row gap-1;
 }
 .FileUriHolder {
-  @apply bg-yellow-200 flex flex-col gap-1;
+  @apply bg-yellow-200 flex flex-col gap-1 w-full px-3;
+}
+.html-react-container {
+  @apply flex flex-col gap-1;
+}
+.css-container {
+  @apply flex flex-col gap-1;
 }
 /*#endregion FileUriList*/
