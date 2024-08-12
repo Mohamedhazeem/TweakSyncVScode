@@ -1,6 +1,6 @@
 {
-  "name": "vscode",
-  "displayName": "vscode",
+  "name": "tweaksync",
+  "displayName": "TweakSync",
   "description": "",
   "version": "0.0.1",
   "engines": {
@@ -26,36 +26,36 @@
     "views": {
       "myExtension": [
         {
-          "id": "myWebviewPanel",
+          "id": "tweakSyncPanel",
           "name": "My Panel"
         }
       ]
     },
     "commands": [
       {
-        "command": "vscode.helloWorld",
+        "command": "tweakSync.helloWorld",
         "title": "Hello World"
       },
       {
-        "command": "vscode.startserver",
+        "command": "tweakSync.startserver",
         "title": "Start Server"
       },
       {
-        "command": "vscode.injectTemporaryIds",
+        "command": "tweakSync.injectTemporaryIds",
         "title": "Inject Temp IDs"
       },
       {
-        "command": "vscode.removeTemporaryIds",
+        "command": "tweakSync.removeTemporaryIds",
         "title": "remove Temp IDs"
       },
       {
-        "command": "vscode.findcss",
+        "command": "tweakSync.findcss",
         "title": "Find CSS"
       },
       {
-        "command": "vscode.showPanel",
-        "title": "Show My Side Panel",
-        "category": "My Extension"
+        "command": "tweakSync.showPanel",
+        "title": "Open TweakSync Hub",
+        "category": "TweakSync"
       }
     ]
   },

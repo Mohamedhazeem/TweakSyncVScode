@@ -5,7 +5,7 @@ import { webViewPanelOpen } from "./disposable/webViewDisposable";
 
 export function activate(context: vscode.ExtensionContext) {
   let currentPanel: vscode.WebviewPanel | undefined = undefined;
-  let initiateServer = vscode.commands.registerCommand("vscode.startserver", () => {
+  let initiateServer = vscode.commands.registerCommand("tweakSync.startserver", () => {
     startServer(currentPanel);
   });
   // const findcss = vscode.commands.registerCommand("vscode.findcss", () => {
