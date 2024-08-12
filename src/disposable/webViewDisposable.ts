@@ -109,13 +109,17 @@ function OnReceiveMessage(currentPanel: vscode.WebviewPanel, context: vscode.Ext
           }
           break;
         case "removeFile":
-          const fileToRemove = message.file;
-          let updatedFiles = context.workspaceState.get<string[]>("selectedFiles", []);
+          // const fileToRemove = message.file;
+          // let updatedFiles = context.workspaceState.get<string[]>("selectedFiles", []);
 
-          updatedFiles = updatedFiles.filter((file) => file !== fileToRemove);
+          // updatedFiles = updatedFiles.filter((file) => file !== fileToRemove);
 
-          context.workspaceState.update("selectedFiles", updatedFiles);
-          currentPanel.webview.postMessage({ command: "updateFileList", files: updatedFiles });
+          // context.workspaceState.update("selectedFiles", updatedFiles);
+          // currentPanel.webview.postMessage({ command: "updateFileList", files: updatedFiles });
+          vscode.commands.executeCommand("tweakSync.removeFile", message.file);
+          break;
+        case "watchFiles":
+          vscode.commands.executeCommand("tweakSync.injectTemporaryIdsToFiles");
           break;
         case "getStoredFiles":
           const storedFiles = context.workspaceState.get<string[]>("selectedFiles", []);

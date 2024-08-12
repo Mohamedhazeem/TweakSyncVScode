@@ -38,19 +38,28 @@
       },
       {
         "command": "tweakSync.startserver",
-        "title": "Start Server"
+        "title": "Start TweakSync",
+        "category": "TweakSync"
       },
       {
         "command": "tweakSync.injectTemporaryIds",
-        "title": "Inject Temp IDs"
+        "title": "Watch this file",
+        "category": "TweakSync"
       },
       {
-        "command": "tweakSync.removeTemporaryIds",
-        "title": "remove Temp IDs"
+        "command": "tweakSync.injectTemporaryIdsToFiles",
+        "title": "Inject Temporary IDs to Selected Files",
+        "category": "TweakSync"
+      },
+      {
+        "command": "tweakSync.removeTemporaryIds",        
+        "title": "Stop watch this file",
+        "category": "TweakSync"
       },
       {
         "command": "tweakSync.findcss",
-        "title": "Find CSS"
+        "title": "Find CSS",
+        "category": "TweakSync"
       },
       {
         "command": "tweakSync.showPanel",

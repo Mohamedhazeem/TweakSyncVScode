@@ -31,6 +31,9 @@ const App = () => {
   const collectFiles = () => {
     vscode.postMessage({ command: "collectFiles" });
   };
+  const watchFiles = () => {
+    vscode.postMessage({ command: "watchFiles" });
+  };
   return (
     <>
       <div className="check">Hello from React in a Webview!</div>
@@ -43,6 +46,7 @@ const App = () => {
         {!isServerRunning ? "Start TweakSync" : "End TweakSync"}
       </Button>
       <Button onClick={collectFiles}>Collect Files</Button>
+      <Button onClick={watchFiles}>Watch Files</Button>
       <FileUriHolder files={files} />
     </>
   );
