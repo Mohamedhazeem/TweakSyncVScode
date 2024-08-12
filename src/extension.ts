@@ -17,6 +17,7 @@ export function activate(context: vscode.ExtensionContext) {
   //       console.warn("Failed to find and replace CSS selectors", err);
   //     });
   // });
+
   const sidePanel = webViewPanelOpen(currentPanel, context);
   context.subscriptions.push(initiateServer);
   context.subscriptions.push(injectTemporaryId);
