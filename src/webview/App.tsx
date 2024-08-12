@@ -15,12 +15,12 @@ const App = () => {
 
     // Add the event listener
     window.addEventListener("message", handleMessage);
-
+    vscode.postMessage({ command: "requestServerStatus" });
     // Cleanup the event listener on component unmount
     return () => {
       window.removeEventListener("message", handleMessage);
     };
-  }, []);
+  }, [vscode]);
   return (
     <>
       <div className="check">Hello from React in a Webview!</div>

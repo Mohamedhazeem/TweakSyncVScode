@@ -8,15 +8,15 @@ interface ConnectedClient {
   socket: WebSocket;
 }
 export let connectedClients: ConnectedClient[] = [];
-let serverRunning = false;
+export let isServerRunning = false;
 
 export const startServer = (currentPanel: vscode.WebviewPanel | undefined) => {
-  if (serverRunning) {
+  if (isServerRunning) {
     console.log("WebSocket server is already running.");
     if (currentPanel) {
       currentPanel.webview.postMessage({
         command: "serverStarted",
-        value: true,
+        value: isServerRunning,
       });
     }
     return; // Prevents trying to start the server again.
@@ -25,12 +25,12 @@ export const startServer = (currentPanel: vscode.WebviewPanel | undefined) => {
   try {
     ws = new WebSocket.Server({ port: PORT });
     console.log("WebSocket server is Created.");
-    serverRunning = true;
+    isServerRunning = true;
 
     if (currentPanel) {
       currentPanel.webview.postMessage({
         command: "serverStarted",
-        value: true,
+        value: isServerRunning,
       });
     }
 
@@ -67,7 +67,7 @@ export const startServer = (currentPanel: vscode.WebviewPanel | undefined) => {
 
     ws.on("close", () => {
       console.log("WebSocket server closed");
-      serverRunning = false;
+      isServerRunning = false;
       ws = undefined; // Reset the WebSocket server instance
     });
   } catch (error) {
@@ -76,7 +76,7 @@ export const startServer = (currentPanel: vscode.WebviewPanel | undefined) => {
 };
 
 export const stopServer = (currentPanel: vscode.WebviewPanel | undefined) => {
-  if (!serverRunning || !ws) {
+  if (!isServerRunning || !ws) {
     console.log("Server is not running.");
     return;
   }
@@ -87,12 +87,12 @@ export const stopServer = (currentPanel: vscode.WebviewPanel | undefined) => {
     } else {
       console.log("WebSocket server stopped");
       ws = undefined;
-      serverRunning = false;
+      isServerRunning = false;
 
       if (currentPanel) {
         currentPanel.webview.postMessage({
           command: "serverStarted",
-          value: false,
+          value: isServerRunning,
         });
       }
     }

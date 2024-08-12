@@ -1,18 +1,18 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import { getWebviewContent } from "../scripts/webView";
-import { startServer, stopServer } from "../scripts/websocket";
+import { isServerRunning, startServer, stopServer } from "../scripts/websocket";
 export function webViewPanelOpen(
   currentPanel: vscode.WebviewPanel | undefined,
   context: vscode.ExtensionContext
 ) {
-  return vscode.commands.registerCommand("vscode.showPanel", () => {
+  return vscode.commands.registerCommand("tweakSync.showPanel", () => {
     if (currentPanel) {
       currentPanel.reveal(vscode.ViewColumn.One);
     } else {
       currentPanel = vscode.window.createWebviewPanel(
-        "myWebviewPanel",
-        "My Side Panel",
+        "tweakSyncPanel",
+        "TweakSync Hub",
         vscode.ViewColumn.One,
         {
           enableScripts: true,
@@ -45,6 +45,9 @@ function OnReceiveMessage(currentPanel: vscode.WebviewPanel, context: vscode.Ext
             stopServer(currentPanel);
           }
           return;
+        case "requestServerStatus":
+          currentPanel?.webview.postMessage({ command: "serverStarted", value: isServerRunning });
+          break;
       }
     },
     undefined,
