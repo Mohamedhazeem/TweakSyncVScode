@@ -1,13 +1,12 @@
 import * as vscode from "vscode";
 import { startServer, stopServer } from "./scripts/websocket";
 import { injectTemporaryId, removeTemporaryId } from "./disposable/temporaryIdDisposable";
-
 import { webViewPanelOpen } from "./disposable/webViewDisposable";
 
 export function activate(context: vscode.ExtensionContext) {
   let currentPanel: vscode.WebviewPanel | undefined = undefined;
   let initiateServer = vscode.commands.registerCommand("vscode.startserver", () => {
-    startServer();
+    startServer(currentPanel);
   });
   // const findcss = vscode.commands.registerCommand("vscode.findcss", () => {
   //   findAndReplaceCssSelectors()
@@ -26,5 +25,6 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 export function deactivate() {
-  stopServer();
+  let currentPanel: vscode.WebviewPanel | undefined = undefined;
+  stopServer(currentPanel);
 }

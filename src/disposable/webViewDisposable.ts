@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import { getWebviewContent } from "../scripts/webView";
+import { startServer, stopServer } from "../scripts/websocket";
 export function webViewPanelOpen(
   currentPanel: vscode.WebviewPanel | undefined,
   context: vscode.ExtensionContext
@@ -22,23 +23,31 @@ export function webViewPanelOpen(
       currentPanel.webview.html = getWebviewContent(currentPanel, context.extensionPath);
       currentPanel.onDidDispose(
         () => {
-          currentPanel = undefined; // Clean up the reference
+          currentPanel = undefined;
         },
         null,
         context.subscriptions
       );
-      // Handle messages from the webview
-      currentPanel.webview.onDidReceiveMessage(
-        (message) => {
-          switch (message.command) {
-            case "webviewToExtension":
-              vscode.window.showInformationMessage(message.value);
-              return;
-          }
-        },
-        undefined,
-        context.subscriptions
-      );
+      OnReceiveMessage(currentPanel, context);
     }
   });
+}
+function OnReceiveMessage(currentPanel: vscode.WebviewPanel, context: vscode.ExtensionContext) {
+  currentPanel.webview.onDidReceiveMessage(
+    (message) => {
+      switch (message.command) {
+        case "startTweakSync":
+          if (message.value) {
+            vscode.window.showInformationMessage(message.value);
+            startServer(currentPanel);
+          } else {
+            vscode.window.showInformationMessage(message.value);
+            stopServer(currentPanel);
+          }
+          return;
+      }
+    },
+    undefined,
+    context.subscriptions
+  );
 }

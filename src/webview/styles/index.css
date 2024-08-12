@@ -70,6 +70,9 @@
 .check {
   @apply text-orange-400;
 }
-/* .initiateTweakSync {
-  @apply ; 
-} */
+.startTweakSync {
+  @apply bg-green-400;
+}
+.endTweakSync {
+  @apply bg-red-400;
+}

@@ -1,11 +1,7 @@
-//@ts-check
-
 'use strict';
 
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-
-//@ts-check
 /** @typedef {import('webpack').Configuration} WebpackConfig **/
 
 /** @type WebpackConfig */
@@ -21,8 +17,8 @@ const extensionConfig = {
     libraryTarget: 'commonjs2'
   },
   externals: {
-    vscode: 'commonjs vscode' // the vscode-module is created on-the-fly and must be excluded. Add other modules that cannot be webpack'ed, 📖 -> https://webpack.js.org/configuration/externals/
-    // modules added here also need to be added in the .vscodeignore file
+    vscode: 'commonjs vscode'
+  
   },
   resolve: {
     // support reading TypeScript and JavaScript files, 📖 -> https://github.com/TypeStrong/ts-loader
@@ -43,14 +39,14 @@ const extensionConfig = {
   },
   devtool: 'nosources-source-map',
   infrastructureLogging: {
-    level: "log", // enables logging required for problem matchers
+    level: "log",
   },
 };
 /** @type WebpackConfig */
 const webviewConfig = {
   target: 'web',
   mode: 'development',
-  entry: './src/webview/index.tsx', // Entry point for your React webview
+  entry: './src/webview/index.tsx',
   output: {
     path: path.resolve(__dirname, 'out', 'webview'),
     filename: 'bundle.js',
@@ -66,7 +62,7 @@ const webviewConfig = {
       {
         test: /\.(ts|tsx)$/,
         exclude: /node_modules/,
-        use: 'babel-loader', // Use Babel to transpile TypeScript and React
+        use: 'babel-loader',
       },
       {
         test: /\.css$/,
@@ -80,7 +76,7 @@ const webviewConfig = {
   },
   plugins: [
     new MiniCssExtractPlugin({
-        filename: 'styles/index.css', // Output CSS file to the `styles` directory inside `out/webview`
+        filename: 'styles/index.css',
     }),
 ],
   devtool: 'source-map',
