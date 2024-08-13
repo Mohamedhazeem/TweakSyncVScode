@@ -11,7 +11,7 @@ import {
   allowedHtmlExtensions,
   isSupportedFileType,
 } from "../utils/isSupportedFileType";
-import { getCurrentPanel } from "../utils/webviewPanelPanel";
+import { getCurrentPanel } from "../utils/webviewPanel";
 
 export let injectTemporaryId = (context: vscode.ExtensionContext) => {
   return vscode.commands.registerCommand("tweakSync.injectTemporaryIds", () => {

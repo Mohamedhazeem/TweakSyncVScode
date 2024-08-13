@@ -10,7 +10,8 @@ import {
 } from "./disposable/temporaryIdDisposable";
 import { webViewPanelOpen } from "./disposable/webViewDisposable";
 import { watchCollectedFiles } from "./utils/watchCollectedFiles";
-import { getCurrentPanel, setCurrentPanel } from "./utils/webviewPanelPanel";
+import { getCurrentPanel, setCurrentPanel } from "./utils/webviewPanel";
+import { registerStatusBarCommands } from "./scripts/statusBar";
 
 // let currentPanel: vscode.WebviewPanel | undefined = undefined;
 export function activate(context: vscode.ExtensionContext) {
@@ -48,6 +49,8 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(removeTemporaryIdCommand);
   context.subscriptions.push(removeSingleFileCommand);
   context.subscriptions.push(removeFilesCommand);
+
+  registerStatusBarCommands(context);
 }
 
 export function deactivate() {
