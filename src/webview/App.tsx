@@ -1,20 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "../components/ui/button";
 import { getVsCodeApi } from "../utils/vscodeApi";
-import FileUriEditRemove from "./components/FileUriEditAndRemove";
 import FileUriHolder from "./components/FileUriHolder";
 
 const App = () => {
   const vscode = getVsCodeApi();
   const [isServerRunning, setIsServerRunning] = useState();
-  const [files, setFiles] = React.useState<string[]>([]);
+  const [cssFiles, setCssFiles] = React.useState<string[]>([]);
+  const [htmlReactFiles, setHtmlReactFiles] = React.useState<string[]>([]);
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       const message = event.data;
       if (message.command === "serverStarted") {
         setIsServerRunning(message.value);
       } else if (message.command === "updateFileList") {
-        setFiles(message.files);
+        console.log("Updating file list:", message.files);
+        setCssFiles(message.files.css);
+        setHtmlReactFiles(message.files.htmlReact);
       }
     };
 
@@ -27,9 +29,11 @@ const App = () => {
       window.removeEventListener("message", handleMessage);
     };
   }, [vscode]);
-
-  const collectFiles = () => {
-    vscode.postMessage({ command: "collectFiles" });
+  useEffect(() => {
+    console.log("Files state updated:", cssFiles);
+  }, [cssFiles]);
+  const selectFiles = () => {
+    vscode.postMessage({ command: "selectFiles" });
   };
   const watchFiles = () => {
     vscode.postMessage({ command: "watchFiles" });
@@ -45,9 +49,9 @@ const App = () => {
       >
         {!isServerRunning ? "Start TweakSync" : "End TweakSync"}
       </Button>
-      <Button onClick={collectFiles}>Collect Files</Button>
+      <Button onClick={selectFiles}>Select Files</Button>
       <Button onClick={watchFiles}>Watch Files</Button>
-      <FileUriHolder files={files} />
+      <FileUriHolder cssFiles={cssFiles} htmlReactFiles={htmlReactFiles} />
     </>
   );
 };

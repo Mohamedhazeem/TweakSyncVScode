@@ -7,6 +7,7 @@ import {
   removeTemporaryId,
 } from "./disposable/temporaryIdDisposable";
 import { webViewPanelOpen } from "./disposable/webViewDisposable";
+import { watchCollectedFiles } from "./utils/watchCollectedFiles";
 
 export function activate(context: vscode.ExtensionContext) {
   let currentPanel: vscode.WebviewPanel | undefined = undefined;
@@ -22,6 +23,7 @@ export function activate(context: vscode.ExtensionContext) {
   //       console.warn("Failed to find and replace CSS selectors", err);
   //     });
   // });
+  watchCollectedFiles(currentPanel, context);
 
   const sidePanel = webViewPanelOpen(currentPanel, context);
   const injectTemporaryIdToFilesCommand = injectTemporaryIdToFiles(context);

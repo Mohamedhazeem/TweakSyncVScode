@@ -2,6 +2,12 @@ import * as vscode from "vscode";
 import * as path from "path";
 import { getWebviewContent } from "../scripts/webView";
 import { isServerRunning, startServer, stopServer } from "../scripts/websocket";
+import {
+  allowedCssExtensions,
+  allowedHtmlExtensions,
+  cssFile,
+  htmlFile,
+} from "../utils/isSupportedFileType";
 
 export function webViewPanelOpen(
   currentPanel: vscode.WebviewPanel | undefined,
@@ -20,7 +26,6 @@ export function webViewPanelOpen(
           localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, "out", "webview"))],
         }
       );
-
       currentPanel.webview.html = getWebviewContent(currentPanel, context.extensionPath);
       currentPanel.onDidDispose(
         () => {
@@ -49,81 +54,134 @@ function OnReceiveMessage(currentPanel: vscode.WebviewPanel, context: vscode.Ext
         case "requestServerStatus":
           currentPanel?.webview.postMessage({ command: "serverStarted", value: isServerRunning });
           break;
-        case "collectFiles":
+        case "selectFiles":
           const uris = await vscode.window.showOpenDialog({
             canSelectMany: true,
             openLabel: "Select Files",
             canSelectFiles: true,
             canSelectFolders: false,
-            title: "Collect Files",
+            title: "Select Files for TweakSync",
           });
 
           if (uris) {
-            const allowedExtensions = [".html", ".jsx", ".tsx", ".css"];
-            const filteredUris = uris.filter((uri) => {
-              const ext = path.extname(uri.fsPath);
-              return allowedExtensions.includes(ext);
-            });
-            const fileUris = filteredUris.map((uri) => uri.toString());
-            let previousFiles = context.workspaceState.get<string[]>("selectedFiles", []);
+            const cssUris = cssFile(uris, allowedCssExtensions);
+            const htmlReactUris = htmlFile(uris, allowedHtmlExtensions);
+            const cssFileUris = cssUris.map((uri) => uri.toString());
+            const htmlReactFileUris = htmlReactUris.map((uri) => uri.toString());
+            let previousCssFiles = context.workspaceState.get<string[]>("selectedCssFiles", []);
+            let previousHtmlReactFiles = context.workspaceState.get<string[]>(
+              "selectedHtmlReactFiles",
+              []
+            );
 
-            // Combine previous files with new selections
-            previousFiles = Array.from(new Set([...previousFiles, ...fileUris]));
+            // Combine previous files with new selections, ensuring unique entries
+            previousCssFiles = Array.from(new Set([...previousCssFiles, ...cssFileUris]));
+            previousHtmlReactFiles = Array.from(
+              new Set([...previousHtmlReactFiles, ...htmlReactFileUris])
+            );
 
             // Update workspace state with combined files
-            context.workspaceState.update("selectedFiles", previousFiles);
-            currentPanel.webview.postMessage({ command: "updateFileList", files: previousFiles });
+            context.workspaceState.update("selectedCssFiles", previousCssFiles);
+            context.workspaceState.update("selectedHtmlReactFiles", previousHtmlReactFiles);
+            // const filteredUris = uris.filter((uri) => {
+            //   const ext = path.extname(uri.fsPath);
+            //   return allowedExtensions.includes(ext);
+            // });
+            // const fileUris = filteredUris.map((uri) => uri.toString());
+            // let previousFiles = context.workspaceState.get<string[]>("selectedFiles", []);
+
+            // // Combine previous files with new selections
+            // previousFiles = Array.from(new Set([...previousFiles, ...fileUris]));
+
+            // // Update workspace state with combined files
+            // context.workspaceState.update("selectedFiles", previousFiles);
+            const updatedFiles = {
+              css: previousCssFiles,
+              htmlReact: previousHtmlReactFiles,
+            };
+            currentPanel.webview.postMessage({
+              command: "updateFileList",
+              files: updatedFiles,
+            });
           }
           break;
         case "editFile":
-          const selectedFileUri = await vscode.window.showOpenDialog({
+          const uri = await vscode.window.showOpenDialog({
             canSelectMany: false,
             openLabel: "Select File",
             canSelectFiles: true,
             canSelectFolders: false,
-            title: "Edit File",
+            title: "Edit File for TweakSync",
           });
 
-          if (selectedFileUri && selectedFileUri.length > 0) {
-            const allowedExtensions = [".html", ".jsx", ".tsx", ".css"];
-            const filteredUris = selectedFileUri.filter((uri) => {
+          if (uri && uri.length > 0) {
+            // Filter URIs based on file extension
+            const cssUris = uri.filter((uri) => {
               const ext = path.extname(uri.fsPath);
-              return allowedExtensions.includes(ext);
+              return allowedCssExtensions.includes(ext);
             });
 
-            if (filteredUris.length > 0) {
-              const newFileUri = filteredUris[0].toString();
-              let previousFiles = context.workspaceState.get<string[]>("selectedFiles", []);
+            const htmlReactUris = uri.filter((uri) => {
+              const ext = path.extname(uri.fsPath);
+              return allowedHtmlExtensions.includes(ext);
+            });
+
+            if (cssUris.length > 0 || htmlReactUris.length > 0) {
+              const newFileUri = cssUris[0]?.toString() || htmlReactUris[0]?.toString();
+
+              // Retrieve existing files from workspace state
+              let previousCssFiles = context.workspaceState.get<string[]>("selectedCssFiles", []);
+              let previousHtmlReactFiles = context.workspaceState.get<string[]>(
+                "selectedHtmlReactFiles",
+                []
+              );
 
               // Replace the old file with the new one
-              const updatedFiles = previousFiles.map((file) =>
+              const updatedCssFiles = previousCssFiles.map((file) =>
+                file === message.oldFile ? newFileUri : file
+              );
+
+              const updatedHtmlReactFiles = previousHtmlReactFiles.map((file) =>
                 file === message.oldFile ? newFileUri : file
               );
 
               // Update workspace state with the edited files list
-              context.workspaceState.update("selectedFiles", updatedFiles);
+              context.workspaceState.update("selectedCssFiles", updatedCssFiles);
+              context.workspaceState.update("selectedHtmlReactFiles", updatedHtmlReactFiles);
+
+              // Combine updated lists for Webview
+              const updatedFiles = {
+                css: updatedCssFiles,
+                htmlReact: updatedHtmlReactFiles,
+              };
 
               // Post the updated file list to the Webview
-              currentPanel.webview.postMessage({ command: "updateFileList", files: updatedFiles });
+              if (currentPanel?.webview) {
+                currentPanel.webview.postMessage({
+                  command: "updateFileList",
+                  files: updatedFiles,
+                });
+              }
             }
           }
           break;
         case "removeFile":
-          // const fileToRemove = message.file;
-          // let updatedFiles = context.workspaceState.get<string[]>("selectedFiles", []);
-
-          // updatedFiles = updatedFiles.filter((file) => file !== fileToRemove);
-
-          // context.workspaceState.update("selectedFiles", updatedFiles);
-          // currentPanel.webview.postMessage({ command: "updateFileList", files: updatedFiles });
-          vscode.commands.executeCommand("tweakSync.removeFile", message.file);
+          vscode.commands.executeCommand("tweakSync.removeFile", message.file, message.index);
           break;
         case "watchFiles":
           vscode.commands.executeCommand("tweakSync.injectTemporaryIdsToFiles");
           break;
         case "getStoredFiles":
-          const storedFiles = context.workspaceState.get<string[]>("selectedFiles", []);
-          currentPanel?.webview.postMessage({ command: "updateFileList", files: storedFiles });
+          let storedCssFiles = context.workspaceState.get<string[]>("selectedCssFiles", []);
+          let storedHtmlReactFiles = context.workspaceState.get<string[]>(
+            "selectedHtmlReactFiles",
+            []
+          );
+          const updatedFiles = {
+            css: storedCssFiles,
+            htmlReact: storedHtmlReactFiles,
+          };
+          currentPanel?.webview.postMessage({ command: "updateFileList", files: updatedFiles });
           break;
       }
     },
