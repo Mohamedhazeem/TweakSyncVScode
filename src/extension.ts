@@ -2,10 +2,11 @@ import * as vscode from "vscode";
 import { startServer, stopServer } from "./scripts/websocket";
 import {
   injectTemporaryId,
-  watchTemporaryIdToFiles,
+  watchFiles,
   watchSingleFileCommand,
-  removeFile,
+  removeSingleFile,
   removeTemporaryId,
+  removeFiles,
 } from "./disposable/temporaryIdDisposable";
 import { webViewPanelOpen } from "./disposable/webViewDisposable";
 import { watchCollectedFiles } from "./utils/watchCollectedFiles";
@@ -33,18 +34,20 @@ export function activate(context: vscode.ExtensionContext) {
   watchCollectedFiles(getCurrentPanel(), context);
 
   const sidePanel = webViewPanelOpen(getCurrentPanel(), setPanel, context);
-  const watchTemporaryIdToFilesCommand = watchTemporaryIdToFiles(context);
+  const watchFilesCommand = watchFiles(context);
   const injectTemporaryIdCommand = injectTemporaryId(context);
   const removeTemporaryIdCommand = removeTemporaryId(context);
-  const removeFileCommand = removeFile(context);
+  const removeSingleFileCommand = removeSingleFile(context);
+  const removeFilesCommand = removeFiles(context);
 
   context.subscriptions.push(sidePanel);
   context.subscriptions.push(initiateServer);
   context.subscriptions.push(injectTemporaryIdCommand);
-  context.subscriptions.push(watchTemporaryIdToFilesCommand);
+  context.subscriptions.push(watchFilesCommand);
   context.subscriptions.push(watchSingleFileCommand);
   context.subscriptions.push(removeTemporaryIdCommand);
-  context.subscriptions.push(removeFileCommand);
+  context.subscriptions.push(removeSingleFileCommand);
+  context.subscriptions.push(removeFilesCommand);
 }
 
 export function deactivate() {

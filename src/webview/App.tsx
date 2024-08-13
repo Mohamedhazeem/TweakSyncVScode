@@ -38,6 +38,9 @@ const App = () => {
   const watchFiles = () => {
     vscode.postMessage({ command: "watchFiles" });
   };
+  const removeFiles = () => {
+    vscode.postMessage({ command: "removeFiles" });
+  };
   return (
     <>
       <div className="check">Hello from React in a Webview!</div>
@@ -50,7 +53,8 @@ const App = () => {
         {!isServerRunning ? "Start TweakSync" : "End TweakSync"}
       </Button>
       <Button onClick={selectFiles}>Select Files</Button>
-      <Button onClick={watchFiles}>Watch Files</Button>
+      <Button onClick={watchFiles}>Watch All Files</Button>
+      <Button onClick={removeFiles}>Remove All Files</Button>
       <FileUriHolder cssFiles={cssFiles} htmlReactFiles={htmlReactFiles} />
     </>
   );

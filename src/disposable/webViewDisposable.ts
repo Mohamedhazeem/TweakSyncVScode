@@ -36,12 +36,12 @@ export function webViewPanelOpen(
       panel.onDidDispose(
         () => {
           console.log("Panel disposed.");
-          setPanel(undefined); // Clear the global reference when the panel is closed
+          setPanel(undefined);
         },
         null,
         context.subscriptions
       );
-      setPanel(panel); // Update the global reference
+      setPanel(panel);
       OnReceiveMessage(panel, context);
     }
   });
@@ -81,28 +81,12 @@ function OnReceiveMessage(currentPanel: vscode.WebviewPanel, context: vscode.Ext
               "selectedHtmlReactFiles",
               []
             );
-
-            // Combine previous files with new selections, ensuring unique entries
             previousCssFiles = Array.from(new Set([...previousCssFiles, ...cssFileUris]));
             previousHtmlReactFiles = Array.from(
               new Set([...previousHtmlReactFiles, ...htmlReactFileUris])
             );
-
-            // Update workspace state with combined files
             context.workspaceState.update("selectedCssFiles", previousCssFiles);
             context.workspaceState.update("selectedHtmlReactFiles", previousHtmlReactFiles);
-            // const filteredUris = uris.filter((uri) => {
-            //   const ext = path.extname(uri.fsPath);
-            //   return allowedExtensions.includes(ext);
-            // });
-            // const fileUris = filteredUris.map((uri) => uri.toString());
-            // let previousFiles = context.workspaceState.get<string[]>("selectedFiles", []);
-
-            // // Combine previous files with new selections
-            // previousFiles = Array.from(new Set([...previousFiles, ...fileUris]));
-
-            // // Update workspace state with combined files
-            // context.workspaceState.update("selectedFiles", previousFiles);
             const updatedFiles = {
               css: previousCssFiles,
               htmlReact: previousHtmlReactFiles,
@@ -173,11 +157,14 @@ function OnReceiveMessage(currentPanel: vscode.WebviewPanel, context: vscode.Ext
             }
           }
           break;
-        case "removeFile":
-          vscode.commands.executeCommand("tweakSync.removeFile", message.file, message.index);
+        case "removeFiles":
+          vscode.commands.executeCommand("tweakSync.removeFiles", message.file, message.index);
+          break;
+        case "removeSingleFile":
+          vscode.commands.executeCommand("tweakSync.removeSingleFile", message.file, message.index);
           break;
         case "watchFiles":
-          vscode.commands.executeCommand("tweakSync.injectTemporaryIdsToFiles");
+          vscode.commands.executeCommand("tweakSync.watchFiles");
           break;
         case "watchSingleFile":
           const fileUri = message.file;

@@ -43,8 +43,8 @@ export let injectTemporaryId = (context: vscode.ExtensionContext) => {
     }
   });
 };
-export let watchTemporaryIdToFiles = (context: vscode.ExtensionContext) => {
-  return vscode.commands.registerCommand("tweakSync.injectTemporaryIdsToFiles", async () => {
+export let watchFiles = (context: vscode.ExtensionContext) => {
+  return vscode.commands.registerCommand("tweakSync.watchFiles", async () => {
     console.log("Inject Temporary IDs command executed.");
 
     // Retrieve the collected files from workspace state
@@ -143,9 +143,9 @@ export let removeTemporaryId = (context: vscode.ExtensionContext) => {
     }
   });
 };
-export let removeFile = (context: vscode.ExtensionContext) => {
+export let removeSingleFile = (context: vscode.ExtensionContext) => {
   return vscode.commands.registerCommand(
-    "tweakSync.removeFile",
+    "tweakSync.removeSingleFile",
     async (fileToRemove: string, index: number) => {
       console.log("Remove file command executed.");
 
@@ -174,15 +174,9 @@ export let removeFile = (context: vscode.ExtensionContext) => {
           css: cssFiles,
           htmlReact: htmlReactFiles,
         };
-        await getPanel.webview
-          .postMessage({ command: "updateFileList", files: updatedFiles })
-          .then((response) => {
-            console.log("called-11");
-            console.log(response);
-          });
-        console.log("called-22");
+        await getPanel.webview.postMessage({ command: "updateFileList", files: updatedFiles });
       } else {
-        console.log("called-33");
+        console.log("current panel is undefined");
       }
 
       // Attempt to remove temporary IDs from the file
@@ -208,4 +202,69 @@ export let removeFile = (context: vscode.ExtensionContext) => {
       }
     }
   );
+};
+export let removeFiles = (context: vscode.ExtensionContext) => {
+  return vscode.commands.registerCommand("tweakSync.removeFiles", async () => {
+    console.log("Remove group of files command executed.");
+
+    // Retrieve current files from workspace state
+    let cssFiles: string[] = context.workspaceState.get("selectedCssFiles", []);
+    let htmlReactFiles: string[] = context.workspaceState.get("selectedHtmlReactFiles", []);
+
+    // Combine both lists into one array for removal
+    const filesToRemove = [...cssFiles, ...htmlReactFiles];
+
+    // Iterate through each file to remove
+    for (const fileToRemove of filesToRemove) {
+      const fileExt = path.extname(fileToRemove);
+
+      // Determine file type and remove from appropriate array
+      if (allowedHtmlExtensions.includes(fileExt)) {
+        htmlReactFiles = htmlReactFiles.filter((file) => file !== fileToRemove);
+      } else if (allowedCssExtensions.includes(fileExt)) {
+        cssFiles = cssFiles.filter((file) => file !== fileToRemove);
+      } else {
+        console.log(`Unsupported file type: ${fileExt}`);
+        continue;
+      }
+
+      // Attempt to remove temporary IDs from the file
+      const fileUri = vscode.Uri.parse(fileToRemove);
+      if (!isSupportedFileType(fileUri)) {
+        console.log(`File type not supported for temporary ID removal: ${fileUri.fsPath}`);
+        continue;
+      }
+
+      try {
+        // Check if the file exists before reading
+        await vscode.workspace.fs.stat(fileUri);
+        const fileContent = await vscode.workspace.fs.readFile(fileUri);
+        let fileText = fileContent.toString();
+
+        // Remove temporary IDs from the file content
+        fileText = removeTemporaryIds(fileText);
+
+        await vscode.workspace.fs.writeFile(fileUri, Buffer.from(fileText));
+        console.log(`Temporary IDs removed from ${fileUri.fsPath}.`);
+      } catch (error) {
+        console.log(`Failed to remove temporary IDs from ${fileUri.fsPath}:`, error);
+      }
+    }
+
+    // Update workspace state with the remaining files
+    await context.workspaceState.update("selectedHtmlReactFiles", htmlReactFiles);
+    await context.workspaceState.update("selectedCssFiles", cssFiles);
+
+    // Post the updated file lists to the Webview
+    const getPanel = getCurrentPanel();
+    if (getPanel) {
+      const updatedFiles = {
+        css: cssFiles,
+        htmlReact: htmlReactFiles,
+      };
+      await getPanel.webview.postMessage({ command: "updateFileList", files: updatedFiles });
+    } else {
+      console.log("Current panel is undefined.");
+    }
+  });
 };

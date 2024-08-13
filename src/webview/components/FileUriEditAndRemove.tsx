@@ -20,7 +20,7 @@ function FileUriEditRemove({ file, index, isHtmlReact = false }: FileUriEditRemo
   };
   const removeFile = (file: string, index: number) => {
     if (file) {
-      vscode.postMessage({ command: "removeFile", file, index });
+      vscode.postMessage({ command: "removeSingleFile", file, index });
     } else {
       console.error("File URI is undefined or invalid.");
     }

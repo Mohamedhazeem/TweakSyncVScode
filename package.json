@@ -47,7 +47,7 @@
         "category": "TweakSync"
       },
       {
-        "command": "tweakSync.injectTemporaryIdsToFiles",
+        "command": "tweakSync.watchFiles",
         "title": "Inject Temporary IDs to Selected Files",
         "category": "TweakSync"
       },
