@@ -25,7 +25,7 @@ const FileUriHolder = memo(({ cssFiles, htmlReactFiles }: FileUriHolderType) => 
         <div>
           {htmlReactFiles.map((file, index) => (
             <div key={file}>
-              <FileUriEditRemove file={file} index={index} />
+              <FileUriEditRemove file={file} index={index} isHtmlReact={true} />
               {index}
             </div>
           ))}

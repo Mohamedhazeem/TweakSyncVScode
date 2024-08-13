@@ -179,6 +179,11 @@ function OnReceiveMessage(currentPanel: vscode.WebviewPanel, context: vscode.Ext
         case "watchFiles":
           vscode.commands.executeCommand("tweakSync.injectTemporaryIdsToFiles");
           break;
+        case "watchSingleFile":
+          const fileUri = message.file;
+          vscode.commands.executeCommand("tweakSync.watchSingleFile", fileUri);
+          break;
+          break;
         case "getStoredFiles":
           const updatedFiles = await validateStoredFiles(context);
           currentPanel?.webview.postMessage({ command: "updateFileList", files: updatedFiles });

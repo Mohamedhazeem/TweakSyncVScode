@@ -2,7 +2,8 @@ import * as vscode from "vscode";
 import { startServer, stopServer } from "./scripts/websocket";
 import {
   injectTemporaryId,
-  injectTemporaryIdToFiles,
+  watchTemporaryIdToFiles,
+  watchSingleFileCommand,
   removeFile,
   removeTemporaryId,
 } from "./disposable/temporaryIdDisposable";
@@ -32,7 +33,7 @@ export function activate(context: vscode.ExtensionContext) {
   watchCollectedFiles(getCurrentPanel(), context);
 
   const sidePanel = webViewPanelOpen(getCurrentPanel(), setPanel, context);
-  const injectTemporaryIdToFilesCommand = injectTemporaryIdToFiles(context);
+  const watchTemporaryIdToFilesCommand = watchTemporaryIdToFiles(context);
   const injectTemporaryIdCommand = injectTemporaryId(context);
   const removeTemporaryIdCommand = removeTemporaryId(context);
   const removeFileCommand = removeFile(context);
@@ -40,7 +41,8 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(sidePanel);
   context.subscriptions.push(initiateServer);
   context.subscriptions.push(injectTemporaryIdCommand);
-  context.subscriptions.push(injectTemporaryIdToFilesCommand);
+  context.subscriptions.push(watchTemporaryIdToFilesCommand);
+  context.subscriptions.push(watchSingleFileCommand);
   context.subscriptions.push(removeTemporaryIdCommand);
   context.subscriptions.push(removeFileCommand);
 }

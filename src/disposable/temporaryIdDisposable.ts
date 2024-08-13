@@ -43,7 +43,7 @@ export let injectTemporaryId = (context: vscode.ExtensionContext) => {
     }
   });
 };
-export let injectTemporaryIdToFiles = (context: vscode.ExtensionContext) => {
+export let watchTemporaryIdToFiles = (context: vscode.ExtensionContext) => {
   return vscode.commands.registerCommand("tweakSync.injectTemporaryIdsToFiles", async () => {
     console.log("Inject Temporary IDs command executed.");
 
@@ -82,6 +82,34 @@ export let injectTemporaryIdToFiles = (context: vscode.ExtensionContext) => {
     }
   });
 };
+export const watchSingleFileCommand = vscode.commands.registerCommand(
+  "tweakSync.watchSingleFile",
+  async (fileUriString: string) => {
+    const fileUri = vscode.Uri.parse(fileUriString);
+
+    try {
+      // Check if the file exists
+      await vscode.workspace.fs.stat(fileUri);
+
+      // Read the file content
+      const fileContent = await vscode.workspace.fs.readFile(fileUri);
+      let fileText = fileContent.toString();
+
+      // Apply the TemporaryIds function
+      fileText = injectTemporaryIds(fileText); // Assuming injectTemporaryIds works on string content
+
+      // Write the updated content back to the file
+      await vscode.workspace.fs.writeFile(fileUri, Buffer.from(fileText));
+      console.log(`Temporary IDs injected into ${fileUri.fsPath}.`);
+    } catch (error) {
+      if (error instanceof vscode.FileSystemError && error.code === "FileNotFound") {
+        console.log(`File not found: ${fileUri.fsPath}`);
+      } else {
+        console.log(`Failed to process file ${fileUri.fsPath}:`, error);
+      }
+    }
+  }
+);
 export let removeTemporaryId = (context: vscode.ExtensionContext) => {
   return vscode.commands.registerCommand("tweakSync.removeTemporaryIds", async () => {
     console.log("Remove Temporary IDs command executed.");
