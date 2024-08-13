@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import path from "path";
+
 import { HTMLElement, parse } from "node-html-parser";
 import { ElementDetails } from "../types/ElementTypes";
 import { findElementRangeInDocument } from "../utils/findElementRange";
@@ -7,8 +7,10 @@ import { findComponentFileWithId } from "../utils/findComponentFileWithId";
 import { checkWorkspaceFolders } from "../utils/checkWorkspaceFolders";
 import { getCurrentElementText } from "../utils/getCurrentElementText";
 import { createHtmlElement } from "../utils/createHtmlElement";
+import * as path from "path";
 
 export async function elementDetails(message: ElementDetails) {
+  console.time("Element Search Start");
   const { temporaryId, tagName, textContent, attributes } = message.details;
   if (attributes && attributes["data-temporaryid"]) {
     delete attributes["data-temporaryid"];
@@ -64,4 +66,5 @@ export async function elementDetails(message: ElementDetails) {
   } else {
     console.log("Raange not found.");
   }
+  console.timeEnd("Element Search Start");
 }

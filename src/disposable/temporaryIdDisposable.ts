@@ -11,11 +11,9 @@ import {
   allowedHtmlExtensions,
   isSupportedFileType,
 } from "../utils/isSupportedFileType";
+import { getCurrentPanel } from "../utils/webviewPanelPanel";
 
-export let injectTemporaryId = (
-  currentPanel: vscode.WebviewPanel | undefined,
-  context: vscode.ExtensionContext
-) => {
+export let injectTemporaryId = (context: vscode.ExtensionContext) => {
   return vscode.commands.registerCommand("tweakSync.injectTemporaryIds", () => {
     console.log("Inject Temporary IDs command executed.");
     const editor = vscode.window.activeTextEditor;
@@ -34,7 +32,8 @@ export let injectTemporaryId = (
         if (!collectedFiles.includes(fileUri)) {
           collectedFiles.push(fileUri);
           context.workspaceState.update("selectedHtmlReactFiles", collectedFiles);
-          currentPanel?.webview.postMessage({ command: "updateFileList", files: collectedFiles });
+          const getPanel = getCurrentPanel();
+          getPanel?.webview.postMessage({ command: "updateFileList", files: collectedFiles });
         }
       } else {
         console.log("Document language is not supported for injecting temporary IDs.");
@@ -83,10 +82,7 @@ export let injectTemporaryIdToFiles = (context: vscode.ExtensionContext) => {
     }
   });
 };
-export let removeTemporaryId = (
-  currentPanel: vscode.WebviewPanel | undefined,
-  context: vscode.ExtensionContext
-) => {
+export let removeTemporaryId = (context: vscode.ExtensionContext) => {
   return vscode.commands.registerCommand("tweakSync.removeTemporaryIds", async () => {
     console.log("Remove Temporary IDs command executed.");
     const editor = vscode.window.activeTextEditor;
@@ -108,7 +104,9 @@ export let removeTemporaryId = (
         // Remove the current file if it's in the list
         collectedFiles = collectedFiles.filter((uri) => uri !== fileUri);
         context.workspaceState.update("selectedHtmlReactFiles", collectedFiles);
-        currentPanel?.webview.postMessage({ command: "updateFileList", files: collectedFiles });
+        const getPanel = getCurrentPanel();
+
+        getPanel?.webview.postMessage({ command: "updateFileList", files: collectedFiles });
       } else {
         console.log("Document language is not supported for removing temporary IDs.");
       }
@@ -117,10 +115,7 @@ export let removeTemporaryId = (
     }
   });
 };
-export let removeFile = (
-  currentPanel: vscode.WebviewPanel | undefined,
-  context: vscode.ExtensionContext
-) => {
+export let removeFile = (context: vscode.ExtensionContext) => {
   return vscode.commands.registerCommand(
     "tweakSync.removeFile",
     async (fileToRemove: string, index: number) => {
@@ -133,10 +128,10 @@ export let removeFile = (
       const fileExt = path.extname(fileToRemove);
 
       // Determine file type and remove from appropriate array
-      if ([".html", ".jsx", ".tsx"].includes(fileExt)) {
+      if (allowedHtmlExtensions.includes(fileExt)) {
         htmlReactFiles = htmlReactFiles.filter((file) => file !== fileToRemove);
         await context.workspaceState.update("selectedHtmlReactFiles", htmlReactFiles);
-      } else if (fileExt === ".css") {
+      } else if (allowedCssExtensions.includes(fileExt)) {
         cssFiles = cssFiles.filter((file) => file !== fileToRemove);
         await context.workspaceState.update("selectedCssFiles", cssFiles);
       } else {
@@ -145,12 +140,21 @@ export let removeFile = (
       }
 
       // Post the updated file lists to the Webview
-      if (currentPanel?.webview) {
+      const getPanel = getCurrentPanel();
+      if (getPanel) {
         const updatedFiles = {
           css: cssFiles,
           htmlReact: htmlReactFiles,
         };
-        await currentPanel.webview.postMessage({ command: "updateFileList", files: updatedFiles });
+        await getPanel.webview
+          .postMessage({ command: "updateFileList", files: updatedFiles })
+          .then((response) => {
+            console.log("called-11");
+            console.log(response);
+          });
+        console.log("called-22");
+      } else {
+        console.log("called-33");
       }
 
       // Attempt to remove temporary IDs from the file

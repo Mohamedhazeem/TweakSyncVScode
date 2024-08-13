@@ -23,10 +23,10 @@ function FileUriEditRemove({ file, index }: FileUriEditRemoveType) {
   };
   return (
     // ${isRemove ? "hide" : ""}
-    <div key={file} className={`FileUriEditRemoveContainer `}>
+    <div key={`fileUriEditRemove${file}`} className={`FileUriEditRemoveContainer `}>
       <div>{formattedPath}</div>
       <Button onClick={() => editFile(file)}>Edit</Button>
-      <Button onClick={() => removeFile(file, index)}>Remove {index}</Button>
+      <Button onClick={() => removeFile(file, index)}>Remove</Button>
     </div>
   );
 }

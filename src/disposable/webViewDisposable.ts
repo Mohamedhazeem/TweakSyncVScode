@@ -11,13 +11,18 @@ import {
 
 export function webViewPanelOpen(
   currentPanel: vscode.WebviewPanel | undefined,
+  setPanel: (panel: vscode.WebviewPanel | undefined) => void,
   context: vscode.ExtensionContext
 ) {
   return vscode.commands.registerCommand("tweakSync.showPanel", () => {
+    console.log("Command 'tweakSync.showPanel' invoked");
+    console.log(currentPanel);
     if (currentPanel) {
+      console.log("Panel already exists, revealing it.");
       currentPanel.reveal(vscode.ViewColumn.One);
     } else {
-      currentPanel = vscode.window.createWebviewPanel(
+      console.log("Creating new panel.");
+      const panel = vscode.window.createWebviewPanel(
         "tweakSyncPanel",
         "TweakSync Hub",
         vscode.ViewColumn.One,
@@ -26,15 +31,17 @@ export function webViewPanelOpen(
           localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, "out", "webview"))],
         }
       );
-      currentPanel.webview.html = getWebviewContent(currentPanel, context.extensionPath);
-      currentPanel.onDidDispose(
+      panel.webview.html = getWebviewContent(panel, context.extensionPath);
+      panel.onDidDispose(
         () => {
-          currentPanel = undefined;
+          console.log("Panel disposed.");
+          setPanel(undefined); // Clear the global reference when the panel is closed
         },
         null,
         context.subscriptions
       );
-      OnReceiveMessage(currentPanel, context);
+      setPanel(panel); // Update the global reference
+      OnReceiveMessage(panel, context);
     }
   });
 }

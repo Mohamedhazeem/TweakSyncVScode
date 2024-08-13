@@ -8,11 +8,17 @@ import {
 } from "./disposable/temporaryIdDisposable";
 import { webViewPanelOpen } from "./disposable/webViewDisposable";
 import { watchCollectedFiles } from "./utils/watchCollectedFiles";
+import { getCurrentPanel, setCurrentPanel } from "./utils/webviewPanelPanel";
 
+// let currentPanel: vscode.WebviewPanel | undefined = undefined;
 export function activate(context: vscode.ExtensionContext) {
-  let currentPanel: vscode.WebviewPanel | undefined = undefined;
+  const setPanel = (panel: vscode.WebviewPanel | undefined) => {
+    console.log("Setting panel:", panel ? panel.title : "undefined");
+    setCurrentPanel(panel);
+    console.log(getCurrentPanel());
+  };
   let initiateServer = vscode.commands.registerCommand("tweakSync.startserver", () => {
-    startServer(currentPanel);
+    startServer(getCurrentPanel());
   });
   // const findcss = vscode.commands.registerCommand("vscode.findcss", () => {
   //   findAndReplaceCssSelectors()
@@ -23,23 +29,23 @@ export function activate(context: vscode.ExtensionContext) {
   //       console.warn("Failed to find and replace CSS selectors", err);
   //     });
   // });
-  watchCollectedFiles(currentPanel, context);
+  watchCollectedFiles(getCurrentPanel(), context);
 
-  const sidePanel = webViewPanelOpen(currentPanel, context);
+  const sidePanel = webViewPanelOpen(getCurrentPanel(), setPanel, context);
   const injectTemporaryIdToFilesCommand = injectTemporaryIdToFiles(context);
-  const injectTemporaryIdCommand = injectTemporaryId(currentPanel, context);
-  const removeTemporaryIdCommand = removeTemporaryId(currentPanel, context);
-  const removeFileCommand = removeFile(currentPanel, context);
+  const injectTemporaryIdCommand = injectTemporaryId(context);
+  const removeTemporaryIdCommand = removeTemporaryId(context);
+  const removeFileCommand = removeFile(context);
 
+  context.subscriptions.push(sidePanel);
   context.subscriptions.push(initiateServer);
   context.subscriptions.push(injectTemporaryIdCommand);
   context.subscriptions.push(injectTemporaryIdToFilesCommand);
   context.subscriptions.push(removeTemporaryIdCommand);
   context.subscriptions.push(removeFileCommand);
-  context.subscriptions.push(sidePanel);
 }
 
 export function deactivate() {
-  let currentPanel: vscode.WebviewPanel | undefined = undefined;
-  stopServer(currentPanel);
+  console.log("Deactivating extension with panel:", getCurrentPanel() ? "exists" : "undefined");
+  stopServer(getCurrentPanel());
 }

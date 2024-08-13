@@ -9,12 +9,14 @@ const App = () => {
   const [cssFiles, setCssFiles] = React.useState<string[]>([]);
   const [htmlReactFiles, setHtmlReactFiles] = React.useState<string[]>([]);
   useEffect(() => {
+    console.log("called-1");
     const handleMessage = (event: MessageEvent) => {
       const message = event.data;
       if (message.command === "serverStarted") {
         setIsServerRunning(message.value);
       } else if (message.command === "updateFileList") {
         console.log("Updating file list:", message.files);
+        console.log("called-2");
         setCssFiles(message.files.css);
         setHtmlReactFiles(message.files.htmlReact);
       }
