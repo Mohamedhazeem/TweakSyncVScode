@@ -8,6 +8,7 @@ import {
   cssFile,
   htmlFile,
 } from "../utils/isSupportedFileType";
+import { validateStoredFiles } from "../utils/checkSelectedFileAvailable";
 
 export function webViewPanelOpen(
   currentPanel: vscode.WebviewPanel | undefined,
@@ -179,15 +180,7 @@ function OnReceiveMessage(currentPanel: vscode.WebviewPanel, context: vscode.Ext
           vscode.commands.executeCommand("tweakSync.injectTemporaryIdsToFiles");
           break;
         case "getStoredFiles":
-          let storedCssFiles = context.workspaceState.get<string[]>("selectedCssFiles", []);
-          let storedHtmlReactFiles = context.workspaceState.get<string[]>(
-            "selectedHtmlReactFiles",
-            []
-          );
-          const updatedFiles = {
-            css: storedCssFiles,
-            htmlReact: storedHtmlReactFiles,
-          };
+          const updatedFiles = await validateStoredFiles(context);
           currentPanel?.webview.postMessage({ command: "updateFileList", files: updatedFiles });
           break;
       }

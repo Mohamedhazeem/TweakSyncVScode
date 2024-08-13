@@ -20,7 +20,7 @@ export function activate(context: vscode.ExtensionContext) {
   let initiateServer = vscode.commands.registerCommand("tweakSync.startserver", () => {
     startServer(getCurrentPanel());
   });
-  // const findcss = vscode.commands.registerCommand("vscode.findcss", () => {
+  // const findcss = vscode.commands.registerCommand("tweakSync.findcss", () => {
   //   findAndReplaceCssSelectors()
   //     .then(() => {
   //       console.log("CSS selectors updated successfully.");
