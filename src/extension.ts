@@ -23,6 +23,11 @@ export function activate(context: vscode.ExtensionContext) {
   let initiateServer = vscode.commands.registerCommand("tweakSync.startserver", () => {
     startServer(getCurrentPanel());
   });
+  // const treeDataProvider = new TweakSyncTreeDataProvider();
+  // vscode.window.createTreeView("tweakSync_Sidebar", {
+  //   treeDataProvider,
+  // });
+
   // const findcss = vscode.commands.registerCommand("tweakSync.findcss", () => {
   //   findAndReplaceCssSelectors()
   //     .then(() => {
@@ -49,7 +54,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(removeTemporaryIdCommand);
   context.subscriptions.push(removeSingleFileCommand);
   context.subscriptions.push(removeFilesCommand);
-
+  // activityPanelIntercative(context);
   registerStatusBarCommands(context);
 }
 

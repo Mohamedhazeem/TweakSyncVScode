@@ -14,24 +14,7 @@
     "onWorkspaceOpen" 
   ],
   "main": "./dist/extension.js",
-  "contributes": {
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "myExtension",
-          "title": "My Extension",
-          "icon": "resources/sync.png"
-        }
-      ]
-    },
-    "views": {
-      "myExtension": [
-        {
-          "id": "tweakSyncPanel",
-          "name": "My Panel"
-        }
-      ]
-    },
+  "contributes": {    
     "commands": [
       {
         "command": "tweakSync.helloWorld",
@@ -66,14 +49,6 @@
         "command": "tweakSync.showPanel",
         "title": "Open TweakSync Hub",
         "category": "TweakSync"
-      },
-      {
-        "command": "tweakSync.startServerFromStatusBar",
-        "title": "Start Server from Status Bar"
-      },
-      {
-        "command": "tweakSync.openWebviewFromStatusBar",
-        "title": "Open Webview from Status Bar"
       }
     ]
   },
