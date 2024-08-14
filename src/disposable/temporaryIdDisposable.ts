@@ -16,54 +16,57 @@ import { FileIdMap } from "../types/ElementTypes";
 import { extractIdsFromCode } from "../utils/extractIdsFromCode";
 
 export let injectTemporaryId = (context: vscode.ExtensionContext) => {
-  return vscode.commands.registerCommand("tweakSync.injectTemporaryIds", () => {
+  return vscode.commands.registerCommand("tweakSync.injectTemporaryIds", async () => {
     console.log("Inject Temporary IDs command executed.");
     const editor = vscode.window.activeTextEditor;
     if (editor) {
       const document = editor.document;
-      const fileUri = document.uri.toString();
+      const fileUri = document.uri;
       if (
         document.languageId === "javascriptreact" ||
         document.languageId === "typescriptreact" ||
         document.languageId === "html"
       ) {
-        TemporaryIds(document, TempororyIdMode.inject);
-        console.log("Temporary IDs injected.");
+        // TemporaryIds(document, TempororyIdMode.inject);
+        // console.log("Temporary IDs injected.");
+        // await document.save();
+        try {
+          // Check if file exists before reading
+          await vscode.workspace.fs.stat(fileUri);
+          const fileContent = await vscode.workspace.fs.readFile(fileUri);
+          let fileText = fileContent.toString();
 
+          // Use the updated TemporaryIds function
+          fileText = injectTemporaryIds(fileText);
+
+          await vscode.workspace.fs.writeFile(fileUri, Buffer.from(fileText));
+          console.log(`Temporary IDs removed from ${fileUri.fsPath}.`);
+        } catch (error) {
+          console.log(`Failed to remove temporary IDs from ${fileUri.fsPath}:`, error);
+        }
         let previousHtmlReactFiles: FileIdMap[] = context.workspaceState.get(
           "selectedHtmlReactFiles",
           []
         );
-        const existingFile = previousHtmlReactFiles.find((file) => file.fileUri === fileUri);
+        const existingFile = previousHtmlReactFiles.find(
+          (file) => file.fileUri === fileUri.toString()
+        );
 
         if (existingFile) {
-          // If file already exists, ensure IDs are updated
           existingFile.ids = extractIdsFromCode(document.getText());
         } else {
-          // Add new file with extracted IDs
           const newFile: FileIdMap = {
-            fileUri: fileUri,
+            fileUri: fileUri.toString(),
             ids: extractIdsFromCode(document.getText()),
           };
           previousHtmlReactFiles.push(newFile);
         }
         context.workspaceState.update("selectedHtmlReactFiles", previousHtmlReactFiles);
-
-        // Post updated file list to the Webview
         const getPanel = getCurrentPanel();
         getPanel?.webview.postMessage({
           command: "updateFileList",
           files: previousHtmlReactFiles,
         });
-
-        // let collectedFiles: string[] = context.workspaceState.get("selectedHtmlReactFiles") || [];
-
-        // if (!collectedFiles.includes(fileUri)) {
-        //   collectedFiles.push(fileUri);
-        //   context.workspaceState.update("selectedHtmlReactFiles", collectedFiles);
-        //   const getPanel = getCurrentPanel();
-        //   getPanel?.webview.postMessage({ command: "updateFileList", files: collectedFiles });
-        // }
       } else {
         console.log("Document language is not supported for injecting temporary IDs.");
       }
@@ -234,7 +237,7 @@ export let removeTemporaryId = (context: vscode.ExtensionContext) => {
 
     if (editor) {
       const document = editor.document;
-      const fileUri = document.uri.toString();
+      const fileUri = document.uri;
 
       if (
         document.languageId === "javascriptreact" ||
@@ -242,19 +245,36 @@ export let removeTemporaryId = (context: vscode.ExtensionContext) => {
         document.languageId === "html"
       ) {
         // Remove temporary IDs from the document
-        TemporaryIds(document, TempororyIdMode.remove);
+        // TemporaryIds(document, TempororyIdMode.remove);
         console.log("Temporary IDs removed.");
-
         // Optionally remove the file from workspace state
+
+        try {
+          // Check if file exists before reading
+          await vscode.workspace.fs.stat(fileUri);
+          const fileContent = await vscode.workspace.fs.readFile(fileUri);
+          let fileText = fileContent.toString();
+
+          // Use the updated TemporaryIds function
+          fileText = removeTemporaryIds(fileText);
+
+          await vscode.workspace.fs.writeFile(fileUri, Buffer.from(fileText));
+          console.log(`Temporary IDs removed from ${fileUri.fsPath}.`);
+        } catch (error) {
+          console.log(`Failed to remove temporary IDs from ${fileUri.fsPath}:`, error);
+        }
+
         let collectedFiles: FileIdMap[] = context.workspaceState.get("selectedHtmlReactFiles", []);
         const updatedFiles = collectedFiles.map((fileIdMap) => {
-          if (fileIdMap.fileUri === fileUri) {
+          if (fileIdMap.fileUri === fileUri.toString()) {
             // Remove IDs from the file
             fileIdMap.ids = [];
           }
           return fileIdMap;
         });
-        collectedFiles = updatedFiles.filter((fileIdMap) => fileIdMap.fileUri !== fileUri);
+        collectedFiles = updatedFiles.filter(
+          (fileIdMap) => fileIdMap.fileUri !== fileUri.toString()
+        );
         context.workspaceState.update("selectedHtmlReactFiles", collectedFiles);
 
         // Optionally update the Webview
