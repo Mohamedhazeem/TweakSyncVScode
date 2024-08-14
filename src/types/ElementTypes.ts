@@ -64,3 +64,7 @@ export type CreateHtmlElement = {
 export type eventHandlerType = {
   [key: string]: string;
 };
+export interface FileIdMap {
+  fileUri: string;
+  ids: string[];
+}

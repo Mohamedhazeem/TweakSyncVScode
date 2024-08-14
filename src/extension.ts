@@ -3,7 +3,7 @@ import { startServer, stopServer } from "./scripts/websocket";
 import {
   injectTemporaryId,
   watchFiles,
-  watchSingleFileCommand,
+  watchSingleFile,
   removeSingleFile,
   removeTemporaryId,
   removeFiles,
@@ -39,8 +39,9 @@ export function activate(context: vscode.ExtensionContext) {
   // });
   watchCollectedFiles(getCurrentPanel(), context);
 
-  const sidePanel = webViewPanelOpen(getCurrentPanel(), setPanel, context);
+  const sidePanel = webViewPanelOpen(setPanel, context);
   const watchFilesCommand = watchFiles(context);
+  const watchSingleFileCommand = watchSingleFile(context);
   const injectTemporaryIdCommand = injectTemporaryId(context);
   const removeTemporaryIdCommand = removeTemporaryId(context);
   const removeSingleFileCommand = removeSingleFile(context);

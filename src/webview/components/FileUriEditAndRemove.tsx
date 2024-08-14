@@ -9,15 +9,14 @@ type FileUriEditRemoveType = {
   isHtmlReact?: boolean;
 };
 function FileUriEditRemove({ file, index, isHtmlReact = false }: FileUriEditRemoveType) {
-  const [isRemove, setRemove] = useState<boolean>();
   const formattedPath = formatFilePath(file);
   const vscode = getVsCodeApi();
   const watchFile = (file: string) => {
     vscode.postMessage({ command: "watchSingleFile", file });
   };
-  const editFile = (file: string) => {
-    vscode.postMessage({ command: "editFile", oldFile: file });
-  };
+  // const editFile = (file: string) => {
+  //   vscode.postMessage({ command: "editFile", oldFile: file });
+  // };
   const removeFile = (file: string, index: number) => {
     if (file) {
       vscode.postMessage({ command: "removeSingleFile", file, index });
@@ -30,7 +29,7 @@ function FileUriEditRemove({ file, index, isHtmlReact = false }: FileUriEditRemo
     <div key={`fileUriEditRemove${file}`} className={`FileUriEditRemoveContainer `}>
       <div>{formattedPath}</div>
       {isHtmlReact && <Button onClick={() => watchFile(file)}>watch</Button>}
-      <Button onClick={() => editFile(file)}>Edit</Button>
+      {/* <Button onClick={() => editFile(file)}>Edit</Button> */}
       <Button onClick={() => removeFile(file, index)}>Remove</Button>
     </div>
   );

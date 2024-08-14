@@ -2,12 +2,13 @@ import React, { useEffect, useState } from "react";
 import { Button } from "../components/ui/button";
 import { getVsCodeApi } from "../utils/vscodeApi";
 import FileUriHolder from "./components/FileUriHolder";
+import { FileIdMap } from "@/types/ElementTypes";
 
 const App = () => {
   const vscode = getVsCodeApi();
   const [isServerRunning, setIsServerRunning] = useState();
   const [cssFiles, setCssFiles] = React.useState<string[]>([]);
-  const [htmlReactFiles, setHtmlReactFiles] = React.useState<string[]>([]);
+  const [htmlReactFiles, setHtmlReactFiles] = React.useState<FileIdMap[]>([]);
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       const message = event.data;
@@ -15,8 +16,8 @@ const App = () => {
         setIsServerRunning(message.value);
       } else if (message.command === "updateFileList") {
         console.log("Updating file list:", message.files);
-        setCssFiles(message.files.css);
-        setHtmlReactFiles(message.files.htmlReact);
+        setCssFiles(message.files.css || []);
+        setHtmlReactFiles(message.files.htmlReact || []);
       }
     };
 

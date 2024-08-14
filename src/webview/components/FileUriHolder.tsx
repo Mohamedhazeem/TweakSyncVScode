@@ -1,12 +1,13 @@
 import React, { memo } from "react";
 import FileUriEditRemove from "./FileUriEditAndRemove";
+import { FileIdMap } from "@/types/ElementTypes";
 
 type FileUriHolderType = {
   cssFiles: string[];
-  htmlReactFiles: string[];
+  htmlReactFiles: FileIdMap[];
 };
 
-const FileUriHolder = memo(({ cssFiles, htmlReactFiles }: FileUriHolderType) => {
+const FileUriHolder = memo(({ cssFiles, htmlReactFiles = [] }: FileUriHolderType) => {
   return (
     <div className="FileUriHolder">
       <div className="css-container">
@@ -23,9 +24,10 @@ const FileUriHolder = memo(({ cssFiles, htmlReactFiles }: FileUriHolderType) => 
       <div className="html-react-container">
         <h3>HTML/React Files</h3>
         <div>
-          {htmlReactFiles.map((file, index) => (
-            <div key={file}>
-              <FileUriEditRemove file={file} index={index} isHtmlReact={true} />
+          {htmlReactFiles.map((fileIdMap, index) => (
+            <div key={fileIdMap.fileUri}>
+              <FileUriEditRemove file={fileIdMap.fileUri} index={index} isHtmlReact={true} />
+              <div>IDs: {fileIdMap.ids.join(", ")}</div>
               {index}
             </div>
           ))}
@@ -34,4 +36,5 @@ const FileUriHolder = memo(({ cssFiles, htmlReactFiles }: FileUriHolderType) => 
     </div>
   );
 });
+
 export default FileUriHolder;
