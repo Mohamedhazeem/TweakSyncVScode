@@ -2,12 +2,16 @@ import * as vscode from "vscode";
 import { ElementStyles } from "../types/ElementTypes";
 import { updateCSSContent } from "./updateCSSContent";
 
-export async function elementStyles(message: ElementStyles) {
-  const { styles } = message;
-  const { inline, external, temporaryId } = styles;
-  const files = await vscode.workspace.findFiles("**/*.{css}");
+export async function elementStyles(message: ElementStyles, context: vscode.ExtensionContext) {
+  console.time("Style Search Start");
 
-  for (const file of files) {
+  const { styles } = message;
+  const { external } = styles;
+
+  const selectedCssFiles: string[] = context.workspaceState.get("selectedCssFiles", []);
+
+  for (const fileUri of selectedCssFiles) {
+    const file = vscode.Uri.parse(fileUri);
     console.log(`Processing file: ${file.toString()}`);
 
     try {
@@ -16,7 +20,6 @@ export async function elementStyles(message: ElementStyles) {
 
       const updatedCSS = await updateCSSContent(originalContent, external);
 
-      // Check if the updated CSS is different from the current content
       if (originalContent !== updatedCSS) {
         console.warn(`Updating file: ${file.toString()}`);
         const fullRange = new vscode.Range(
@@ -35,4 +38,5 @@ export async function elementStyles(message: ElementStyles) {
       console.error(`Error processing file ${file.toString()}: ${error}`);
     }
   }
+  console.timeEnd("Style Search Start");
 }

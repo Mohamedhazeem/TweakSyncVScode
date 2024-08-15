@@ -1,25 +1,29 @@
 import * as vscode from "vscode";
-
 import { HTMLElement, parse } from "node-html-parser";
-import { ElementDetails } from "../types/ElementTypes";
+import { ElementDetails, FileIdMap } from "../types/ElementTypes";
 import { findElementRangeInDocument } from "../utils/findElementRange";
 import { findComponentFileWithId } from "../utils/findComponentFileWithId";
 import { checkWorkspaceFolders } from "../utils/checkWorkspaceFolders";
 import { getCurrentElementText } from "../utils/getCurrentElementText";
 import { createHtmlElement } from "../utils/createHtmlElement";
 import * as path from "path";
-
-export async function elementDetails(message: ElementDetails) {
+export async function elementDetails(message: ElementDetails, context: vscode.ExtensionContext) {
   console.time("Element Search Start");
   const { temporaryId, tagName, textContent, attributes } = message.details;
+
   if (attributes && attributes["data-temporaryid"]) {
     delete attributes["data-temporaryid"];
   }
+
   checkWorkspaceFolders();
-  const componentFile = await findComponentFileWithId(temporaryId!);
-  if (componentFile) {
-    const fileExtension = path.extname(componentFile.fsPath).toLowerCase();
-    const document = await vscode.workspace.openTextDocument(componentFile);
+
+  let htmlReactFiles: FileIdMap[] = context.workspaceState.get("selectedHtmlReactFiles", []);
+
+  const targetFile = htmlReactFiles.find((file) => file.ids.includes(temporaryId!));
+
+  if (targetFile) {
+    const componentFileUri = vscode.Uri.parse(targetFile.fileUri);
+    const document = await vscode.workspace.openTextDocument(componentFileUri);
     const editor = await vscode.window.showTextDocument(document);
 
     const range = findElementRangeInDocument(document, temporaryId!);
@@ -29,23 +33,19 @@ export async function elementDetails(message: ElementDetails) {
       console.log("range found:", range);
 
       const elementContent = document.getText(range);
-      console.log(`elementcontent: ${elementContent}`);
       const root = parse(elementContent);
-      console.log(`root: ${root}`);
       const element = root.querySelector(
         `[data-temporaryid="${temporaryId}"]`
       ) as HTMLElement | null;
-      console.log(`current element text: ${element}`);
 
-      console.log(`current element text: ${getCurrentElementText(element)}`);
       if (element) {
         const currentText = getCurrentElementText(element);
 
+        // Create the new element content
         const updatedTextContent = textContent;
-        let newText = "";
-        newText = createHtmlElement({
-          fileExtension,
-          newText,
+        let newText = createHtmlElement({
+          fileExtension: path.extname(componentFileUri.fsPath).toLowerCase(),
+          newText: "",
           tagName,
           temporaryId,
           attributes,
@@ -53,7 +53,6 @@ export async function elementDetails(message: ElementDetails) {
           element,
           currentText,
         });
-
         console.log("New text to replace with:", newText);
 
         const edit = new vscode.WorkspaceEdit();
@@ -62,9 +61,12 @@ export async function elementDetails(message: ElementDetails) {
       } else {
         console.log("Element with data-temporaryid not found.");
       }
+    } else {
+      console.log("Range not found.");
     }
   } else {
-    console.log("Raange not found.");
+    console.log("File with the specified temporary ID not found in the cached files.");
   }
+
   console.timeEnd("Element Search Start");
 }

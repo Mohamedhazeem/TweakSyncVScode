@@ -56,7 +56,7 @@ function OnReceiveMessage(currentPanel: vscode.WebviewPanel, context: vscode.Ext
         case "startTweakSync":
           if (message.value) {
             vscode.window.showInformationMessage(message.value);
-            startServer(currentPanel);
+            startServer(currentPanel, context);
           } else {
             vscode.window.showInformationMessage(message.value);
             stopServer(currentPanel);

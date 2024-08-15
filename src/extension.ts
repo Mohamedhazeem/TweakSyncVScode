@@ -21,7 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
     console.log(getCurrentPanel());
   };
   let initiateServer = vscode.commands.registerCommand("tweakSync.startserver", () => {
-    startServer(getCurrentPanel());
+    startServer(getCurrentPanel(), context);
   });
   // const treeDataProvider = new TweakSyncTreeDataProvider();
   // vscode.window.createTreeView("tweakSync_Sidebar", {

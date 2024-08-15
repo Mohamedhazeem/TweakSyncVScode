@@ -10,7 +10,10 @@ interface ConnectedClient {
 export let connectedClients: ConnectedClient[] = [];
 export let isServerRunning = false;
 
-export const startServer = (currentPanel: vscode.WebviewPanel | undefined) => {
+export const startServer = (
+  currentPanel: vscode.WebviewPanel | undefined,
+  context: vscode.ExtensionContext
+) => {
   if (isServerRunning) {
     console.log("WebSocket server is already running.");
     if (currentPanel) {
@@ -42,7 +45,7 @@ export const startServer = (currentPanel: vscode.WebviewPanel | undefined) => {
         try {
           const parsedMessage = JSON.parse(message.toString());
           console.log(parsedMessage);
-          await handleWebSocketMessage(parsedMessage);
+          await handleWebSocketMessage(parsedMessage, context);
         } catch (error) {
           console.error("Error handling WebSocket message:", error);
         }
