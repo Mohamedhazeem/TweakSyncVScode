@@ -3,6 +3,7 @@ import { Button } from "../components/ui/button";
 import { getVsCodeApi } from "../utils/vscodeApi";
 import FileUriHolder from "./components/FileUriHolder";
 import { FileIdMap } from "@/types/ElementTypes";
+import NavBar from "./NavBar";
 
 const App = () => {
   const vscode = getVsCodeApi();
@@ -21,11 +22,9 @@ const App = () => {
       }
     };
 
-    // Add the event listener
     window.addEventListener("message", handleMessage);
     vscode.postMessage({ command: "requestServerStatus" });
     vscode.postMessage({ command: "getStoredFiles" });
-    // Cleanup the event listener on component unmount
     return () => {
       window.removeEventListener("message", handleMessage);
     };
@@ -43,21 +42,47 @@ const App = () => {
     vscode.postMessage({ command: "removeFiles" });
   };
   return (
-    <>
-      <div className="check">Hello from React in a Webview!</div>
-      <Button
-        className={`${!isServerRunning ? "startTweakSync" : "endTweakSync"}`}
-        onClick={() => {
-          vscode.postMessage({ command: "startTweakSync", value: !isServerRunning ? true : false });
-        }}
-      >
-        {!isServerRunning ? "Start TweakSync" : "End TweakSync"}
-      </Button>
-      <Button onClick={selectFiles}>Select Files</Button>
-      <Button onClick={watchFiles}>Watch All Files</Button>
-      <Button onClick={removeFiles}>Remove All Files</Button>
-      <FileUriHolder cssFiles={cssFiles} htmlReactFiles={htmlReactFiles} />
-    </>
+    <div className="tweakSyncContainer">
+      <NavBar />
+      <div className="parentContainer">
+        <div className="container">
+          <div className="optionButtonsHolder">
+            <Button className="optionButton">Home</Button>
+            <Button className="optionButton">Support</Button>
+          </div>
+          <div className="containerPanel">
+            <div className="tweakSyncHomeOptions">
+              <Button
+                variant={"default"}
+                className={`${
+                  !isServerRunning
+                    ? "startTweakSync min-w-40 hover:bg-green-500"
+                    : "endTweakSync min-w-40 hover:bg-red-500"
+                }`}
+                onClick={() => {
+                  vscode.postMessage({
+                    command: "startTweakSync",
+                    value: !isServerRunning ? true : false,
+                  });
+                }}
+              >
+                {!isServerRunning ? "Start TweakSync" : "End TweakSync"}
+              </Button>
+              <Button variant={"default"} className="tweakSyncButton" onClick={selectFiles}>
+                Select Files
+              </Button>
+              <Button variant={"default"} className="tweakSyncButton" onClick={watchFiles}>
+                Watch HTML Files
+              </Button>
+              <Button variant={"default"} className="tweakSyncButton" onClick={removeFiles}>
+                Remove All Files
+              </Button>
+            </div>
+            <FileUriHolder cssFiles={cssFiles} htmlReactFiles={htmlReactFiles} />
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 export default App;

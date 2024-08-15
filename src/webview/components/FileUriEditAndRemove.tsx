@@ -25,12 +25,19 @@ function FileUriEditRemove({ file, index, isHtmlReact = false }: FileUriEditRemo
     }
   };
   return (
-    // ${isRemove ? "hide" : ""}
-    <div key={`fileUriEditRemove${file}`} className={`FileUriEditRemoveContainer `}>
-      <div>{formattedPath}</div>
-      {isHtmlReact && <Button onClick={() => watchFile(file)}>watch</Button>}
-      {/* <Button onClick={() => editFile(file)}>Edit</Button> */}
-      <Button onClick={() => removeFile(file, index)}>Remove</Button>
+    <div key={`fileUriEditRemove${file}`} className={`fileUriEditRemove`}>
+      <div className="fileUri">{formattedPath}</div>
+      <div className="fileUriButtonHolder">
+        {isHtmlReact && (
+          <Button className="fileUriButton" onClick={() => watchFile(file)}>
+            Watch
+          </Button>
+        )}
+        {/* <Button onClick={() => editFile(file)}>Edit</Button> */}
+        <Button className="fileUriButton" onClick={() => removeFile(file, index)}>
+          Remove
+        </Button>
+      </div>
     </div>
   );
 }

@@ -24,7 +24,7 @@ export function registerStatusBarCommands(context: vscode.ExtensionContext) {
         vscode.window.showInformationMessage("TweakSync Hub opened!");
       } else if (choice === "Start TweakSync") {
         // Start the server
-        startServer(getCurrentPanel());
+        startServer(getCurrentPanel(), context);
         vscode.window.showInformationMessage("TweakSync started!");
       } else if (choice === "Stop TweakSync") {
         // Start the server

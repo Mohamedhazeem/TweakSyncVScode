@@ -67,8 +67,31 @@
     @apply bg-background text-foreground;
   }
 }
-.check {
-  @apply text-orange-400;
+body,
+html {
+  @apply m-0 p-0 w-full h-full bg-[#100f11] bg-gradient-to-r from-fuchsia-500 to-cyan-500;
+}
+/* #region FileUriList */
+.tweakSyncContainer {
+  @apply p-0 m-0;
+}
+.parentContainer {
+  @apply px-16 py-10;
+}
+.container {
+  @apply flex gap-6;
+}
+.containerPanel {
+  @apply bg-[#201e23]  bg-clip-padding backdrop-filter backdrop-blur-lg bg-opacity-10 rounded-lg w-full;
+}
+.optionButtonsHolder {
+  @apply flex flex-col gap-2 w-52;
+}
+.optionButton {
+  @apply bg-white bg-clip-padding backdrop-filter backdrop-blur-lg bg-opacity-20 rounded-lg;
+}
+.tweakSyncButton {
+  @apply min-w-40;
 }
 .startTweakSync {
   @apply bg-green-400;
@@ -76,20 +99,48 @@
 .endTweakSync {
   @apply bg-red-400;
 }
+.tweakSyncHomeOptions {
+  @apply flex md:flex-row flex-col gap-2 justify-center items-center py-3;
+}
+/* #endregion FileUriList */
 /* #region FileUriList */
-.FileUriEditRemoveContainer {
-  @apply bg-gray-400 flex flex-row gap-1;
+.fileUriEditRemoveContainer {
+  @apply w-full flex flex-col gap-1 rounded-lg;
+}
+.fileUriEditRemove {
+  @apply flex justify-between items-center gap-2;
+}
+.fileUri {
+  @apply bg-gradient-to-r from-slate-300 to-slate-400 bg-clip-padding backdrop-filter backdrop-blur-lg bg-opacity-40 rounded-lg flex-1 px-2 text-base text-black text-justify font-semibold;
 }
 .FileUriHolder {
-  @apply bg-yellow-200 flex flex-col gap-1 w-full px-3;
+  @apply flex flex-col gap-1 w-full rounded-lg px-12;
+}
+.fileUriButtonHolder {
+  @apply flex gap-2;
+}
+.fileUriButton {
+  @apply w-14 h-7;
 }
 .html-react-container {
-  @apply flex flex-col gap-1;
+  @apply flex flex-col gap-1 text-white;
 }
 .css-container {
-  @apply flex flex-col gap-1;
+  @apply flex flex-col gap-1 text-white pr-16;
+}
+.htmlCssTitle {
+  @apply text-base font-normal tracking-wider;
 }
 .hide {
   @apply hidden;
 }
 /*#endregion FileUriList*/
+
+/*#region NavBar*/
+.tweakSyncNavbarText {
+  @apply text-lg font-light font-mono text-white px-28 py-4;
+}
+.NavBar {
+  @apply bg-[#1e1e1e] py-3;
+}
+/*#endregion NavBar*/

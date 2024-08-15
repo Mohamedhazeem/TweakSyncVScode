@@ -14,7 +14,7 @@ export function getWebviewContent(panel: vscode.WebviewPanel, extensionPath: str
         <html>
         <head>
             <meta charset="UTF-8">
-            <title>React Webview</title>
+            <title>TweakSync Hub</title>
             <link href="${styleUri}" rel="stylesheet">
         </head>
         <body>

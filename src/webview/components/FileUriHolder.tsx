@@ -10,25 +10,22 @@ type FileUriHolderType = {
 const FileUriHolder = memo(({ cssFiles, htmlReactFiles = [] }: FileUriHolderType) => {
   return (
     <div className="FileUriHolder">
-      <div className="css-container">
-        <h3>CSS Files</h3>
-        <div>
-          {cssFiles.map((file, index) => (
-            <div key={file}>
-              <FileUriEditRemove file={file} index={index} />
-              {index}
+      <div className="html-react-container">
+        <span className="htmlCssTitle">HTML Files</span>
+        <div className="fileUriEditRemoveContainer">
+          {htmlReactFiles.map((fileIdMap, index) => (
+            <div key={fileIdMap.fileUri}>
+              <FileUriEditRemove file={fileIdMap.fileUri} index={index} isHtmlReact={true} />
             </div>
           ))}
         </div>
       </div>
-      <div className="html-react-container">
-        <h3>HTML/React Files</h3>
-        <div>
-          {htmlReactFiles.map((fileIdMap, index) => (
-            <div key={fileIdMap.fileUri}>
-              <FileUriEditRemove file={fileIdMap.fileUri} index={index} isHtmlReact={true} />
-              <div>IDs: {fileIdMap.ids.join(", ")}</div>
-              {index}
+      <div className="css-container">
+        <span className="htmlCssTitle">CSS Files</span>
+        <div className="fileUriEditRemoveContainer">
+          {cssFiles.map((file, index) => (
+            <div key={file}>
+              <FileUriEditRemove file={file} index={index} />
             </div>
           ))}
         </div>
