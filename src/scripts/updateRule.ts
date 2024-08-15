@@ -1,64 +1,60 @@
 import postcss, { Root } from "postcss";
 import safeParser from "postcss-safe-parser";
+import * as vscode from "vscode";
+
 export async function updateRule(
   css: string,
   selector: string,
   newValues: { [key: string]: string }
 ): Promise<string> {
-  // const root = postcss.parse(css);
   const root: Root = safeParser(css);
+  let ruleFound = false;
+  let ruleUpdated = false;
 
-  // let ruleFound = false;
+  // Walk through the rules to find the matching selector
   root.walkAtRules((atRule) => {
     if (atRule.name === "media") {
-      // Walk through all rules inside this @media rule
-      console.log(atRule);
       atRule.walkRules((rule) => {
         if (`@${atRule.name} ${atRule.params} ${rule.selector}` === selector) {
-          //ruleFound = true;
-          console.info(
-            `rule.selector is ${atRule.params} ${rule.selector} and selector is ${selector}`
-          );
+          ruleFound = true;
+          ruleUpdated = true;
           rule.removeAll(); // Remove all existing declarations for the selector
           Object.entries(newValues).forEach(([prop, value]) => {
             rule.append({ prop, value });
           });
-        } else {
-          // TO CREATE A NEW RULE//
-          // if (!ruleFound) {
-          //   const newRule = postcss.rule({ selector: selector.split(' ').slice(1).join(' ') });
-          //   Object.entries(newValues).forEach(([prop, value]) => {
-          //     newRule.append({ prop, value });
-          //   });
-          //   atRule.append(newRule);
-          // }
-          console.warn(
-            `rule.selector is @${atRule.name} ${atRule.params} ${rule.selector} and selector is ${selector}`
-          );
         }
       });
     } else if (atRule.name === "font-face") {
-      // individual atrule logics
+      // Handle @font-face rule if needed
     }
   });
 
   root.walkRules((rule) => {
     if (rule.selector === selector) {
-      //ruleFound=true;
+      ruleFound = true;
+      ruleUpdated = true;
       rule.removeAll(); // Remove all existing declarations
       Object.entries(newValues).forEach(([prop, value]) => {
         rule.append({ prop, value });
       });
     }
-    // TO CREATE A NEW RULE//
-    // if (!ruleFound) {
-    //   const newRule = postcss.rule({ selector });
-    //   Object.entries(newValues).forEach(([prop, value]) => {
-    //     newRule.append({ prop, value });
-    //   });
-    //   root.append(newRule);
-    // }
   });
 
-  return root.toString();
+  // If the selector was not found, create a new rule
+  if (!ruleFound) {
+    const newRule = postcss.rule({ selector });
+    Object.entries(newValues).forEach(([prop, value]) => {
+      newRule.append({ prop, value });
+    });
+    root.append(newRule);
+    ruleUpdated = true;
+  }
+
+  // If the rule was updated, return the updated CSS string
+  if (ruleUpdated) {
+    return root.toString();
+  }
+
+  // If the rule was not updated, and no new rule was created, return the original CSS
+  return css;
 }
