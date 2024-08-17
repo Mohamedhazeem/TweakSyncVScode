@@ -1,6 +1,6 @@
 .vscode/**
 .vscode-test/**
-out/**
+# out/**
 node_modules/**
 src/**
 .gitignore
@@ -12,3 +12,17 @@ vsc-extension-quickstart.md
 **/*.map
 **/*.ts
 **/.vscode-test.*
+
+# .vscode/**          # Exclude all files in the .vscode directory
+# .vscode-test/**     # Exclude all files in the .vscode-test directory
+# node_modules/**     # Exclude all files in the node_modules directory
+# src/**              # Exclude all files in the src directory (source files)
+# .gitignore          # Exclude the .gitignore file
+# .yarnrc             # Exclude the .yarnrc file
+# webpack.config.js   # Exclude the webpack.config.js file
+# vsc-extension-quickstart.md  # Exclude the vsc-extension-quickstart.md file
+# **/tsconfig.json    # Exclude all tsconfig.json files
+# **/.eslintrc.json   # Exclude all .eslintrc.json files
+# **/*.map            # Exclude all .map files (source maps)
+# **/*.ts             # Exclude all .ts files (TypeScript source files)
+# **/.vscode-test.*   # Exclude all .vscode-test.* files

@@ -35,6 +35,15 @@ export function webViewPanelOpen(
           localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, "out", "webview"))],
         }
       );
+
+      panel.iconPath = {
+        dark: vscode.Uri.file(
+          path.join(context.extensionPath, "out", "webview", "resources", "icon16.png")
+        ),
+        light: vscode.Uri.file(
+          path.join(context.extensionPath, "out", "webview", "resources", "icon16.png")
+        ),
+      };
       panel.webview.html = getWebviewContent(panel, context.extensionPath);
       panel.onDidDispose(
         () => {

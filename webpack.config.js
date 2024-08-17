@@ -2,6 +2,7 @@
 
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 /** @typedef {import('webpack').Configuration} WebpackConfig **/
 
 /** @type WebpackConfig */
@@ -50,6 +51,7 @@ const webviewConfig = {
   output: {
     path: path.resolve(__dirname, 'out', 'webview'),
     filename: 'bundle.js',
+    publicPath: 'out/webview/',
   },
   resolve: {
     alias: {
@@ -77,6 +79,11 @@ const webviewConfig = {
   plugins: [
     new MiniCssExtractPlugin({
         filename: 'styles/index.css',
+    }),
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: 'resources', to: 'resources' }
+      ],
     }),
 ],
   devtool: 'source-map',
