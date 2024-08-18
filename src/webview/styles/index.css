@@ -72,7 +72,7 @@ html {
   /* from-fuchsia-500 to-cyan-500 */
   @apply m-0 p-0 w-full h-full bg-gradient-to-r from-[#eea849ff] to-[#24acf2ff];
 }
-/* #region FileUriList */
+/* #region TweakSyncConatiner */
 .tweakSyncContainer {
   @apply p-0 m-0;
 }
@@ -116,7 +116,8 @@ html {
 .tweakSyncHomeOptions {
   @apply flex md:flex-row flex-col gap-2 justify-center items-center py-3;
 }
-/* #endregion FileUriList */
+/* #endregion TweakSyncConatiner */
+
 /* #region FileUriList */
 .fileUriEditRemoveContainer {
   @apply w-full flex flex-col gap-1 rounded-lg;
@@ -164,3 +165,31 @@ html {
   @apply bg-[#101010] py-3 bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-75;
 }
 /*#endregion NavBar*/
+
+/*#region Support*/
+.SupportContainer {
+  @apply flex md:flex-row flex-col gap-7 w-full justify-center items-center py-12 px-8;
+}
+.contactSupport {
+  @apply bg-[#00808091] flex flex-col gap-3 items-center p-7 py-12 w-2/4 min-w-64 h-3/4 min-h-64 rounded-lg;
+}
+.socialLinks {
+  /* ffffff80 */
+  @apply bg-[#ff7f2ae5] flex flex-col gap-8 items-center p-12  w-2/4 min-w-64 h-3/4 min-h-64 rounded-lg;
+}
+.contactSupportTitle {
+  @apply text-xl text-[#3d0000e5] font-bold;
+}
+.contactSupportDialogue {
+  @apply text-base text-justify font-medium;
+}
+.contactMail {
+  @apply text-base font-semibold text-[#3d0000e5] hover:text-[#3d0000e5] hover:underline;
+}
+.socialLinkDialogue {
+  @apply text-xl text-justify text-[#3d0000e5] font-bold;
+}
+.socialMediaIcons {
+  @apply flex gap-2;
+}
+/*#endregion Support*/

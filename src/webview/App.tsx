@@ -10,6 +10,7 @@ import { SelectIcon } from "./components/icons/SelectIcon";
 import { WatchAllIcon } from "./components/icons/WatchAllIcon";
 import { RemoveAllIcon } from "./components/icons/RemoveAllIcon";
 import { HomePage } from "./HomePage";
+import SupportPage from "./SupportPage";
 
 const App = () => {
   const vscode = getVsCodeApi();
@@ -87,6 +88,7 @@ const App = () => {
                 htmlReactFiles={htmlReactFiles}
               />
             )}
+            {clickedOptionButton === 1 && <SupportPage />}
           </div>
         </div>
       </div>
