@@ -9,6 +9,7 @@ import { StopIcon } from "./components/icons/StopIcon";
 import { SelectIcon } from "./components/icons/SelectIcon";
 import { WatchAllIcon } from "./components/icons/WatchAllIcon";
 import { RemoveAllIcon } from "./components/icons/RemoveAllIcon";
+import { HomePage } from "./HomePage";
 
 const App = () => {
   const vscode = getVsCodeApi();
@@ -75,65 +76,17 @@ const App = () => {
             </Button>
           </div>
           <div className="containerPanel">
-            <div className="tweakSyncHomeOptions">
-              <Button
-                variant={"default"}
-                className={`${
-                  !isServerRunning
-                    ? "startTweakSync hover:bg-[#00806bf6]"
-                    : "endTweakSync  hover:bg-[#e44141f3]"
-                }`}
-                onClick={() => {
-                  vscode.postMessage({
-                    command: "startTweakSync",
-                    value: !isServerRunning ? true : false,
-                  });
-                }}
-              >
-                {!isServerRunning ? (
-                  <>
-                    <StartIcon />
-                    <span>Start</span>
-                  </>
-                ) : (
-                  <>
-                    <StopIcon />
-                    <span>Stop</span>
-                  </>
-                )}
-              </Button>
-              <Button
-                variant={"default"}
-                className="tweakSyncButton selectFiles hover:bg-[#0055d4bf]"
-                onClick={selectFiles}
-              >
-                <>
-                  <SelectIcon />
-                  <span>Files</span>
-                </>
-              </Button>
-              <Button
-                variant={"default"}
-                className="tweakSyncButton watchAll hover:bg-[#e65c1ff5]"
-                onClick={watchFiles}
-              >
-                <>
-                  <WatchAllIcon />
-                  <span>Watch All</span>
-                </>
-              </Button>
-              <Button
-                variant={"default"}
-                className="tweakSyncButton removeAll hover:bg-[#c33c3cf3]"
-                onClick={removeFiles}
-              >
-                <>
-                  <RemoveAllIcon />
-                  <span>Remove All</span>
-                </>
-              </Button>
-            </div>
-            <FileUriHolder cssFiles={cssFiles} htmlReactFiles={htmlReactFiles} />
+            {clickedOptionButton === 0 && (
+              <HomePage
+                isServerRunning={isServerRunning}
+                vscode={vscode}
+                selectFiles={selectFiles}
+                watchFiles={watchFiles}
+                removeFiles={removeFiles}
+                cssFiles={cssFiles}
+                htmlReactFiles={htmlReactFiles}
+              />
+            )}
           </div>
         </div>
       </div>

@@ -158,9 +158,9 @@ html {
 
 /*#region NavBar*/
 .tweakSyncNavbarText {
-  @apply flex gap-2 text-lg font-light font-mono text-white px-28;
+  @apply flex gap-2 text-lg font-light font-mono text-white pl-10;
 }
 .NavBar {
-  @apply bg-[#1e1e1e] py-3;
+  @apply bg-[#101010] py-3 bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-75;
 }
 /*#endregion NavBar*/
