@@ -1,10 +1,12 @@
 import React from "react";
-
+import { TweakSyncIcon } from "./components/icons/TweakSyncIcon";
 function NavBar() {
   return (
     <div className="NavBar">
-      {/* icon here */}
-      <span className="tweakSyncNavbarText">TweakSync</span>
+      <span className="tweakSyncNavbarText">
+        <TweakSyncIcon />
+        TweakSync
+      </span>
     </div>
   );
 }

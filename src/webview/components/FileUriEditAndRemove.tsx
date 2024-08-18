@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Button } from "../../components/ui/button";
 import { formatFilePath } from "../../utils/formatFilePath";
 import { getVsCodeApi } from "../../utils/vscodeApi";
+import { WatchIcon } from "./icons/WatchIcon";
+import { RemoveIcon } from "./icons/RemoveIcon";
 
 type FileUriEditRemoveType = {
   file: string;
@@ -29,13 +31,25 @@ function FileUriEditRemove({ file, index, isHtmlReact = false }: FileUriEditRemo
       <div className="fileUri">{formattedPath}</div>
       <div className="fileUriButtonHolder">
         {isHtmlReact && (
-          <Button className="fileUriButton" onClick={() => watchFile(file)}>
-            Watch
+          <Button
+            className="fileUriButton watch hover:bg-[#e65c1ff5]"
+            onClick={() => watchFile(file)}
+          >
+            <>
+              <WatchIcon />
+              <span>Watch</span>
+            </>
           </Button>
         )}
         {/* <Button onClick={() => editFile(file)}>Edit</Button> */}
-        <Button className="fileUriButton" onClick={() => removeFile(file, index)}>
-          Remove
+        <Button
+          className="fileUriButton remove hover:bg-[#c33c3cf3]"
+          onClick={() => removeFile(file, index)}
+        >
+          <>
+            <RemoveIcon />
+            <span>Remove</span>
+          </>
         </Button>
       </div>
     </div>

@@ -4,10 +4,16 @@ import { getVsCodeApi } from "../utils/vscodeApi";
 import FileUriHolder from "./components/FileUriHolder";
 import { FileIdMap } from "@/types/ElementTypes";
 import NavBar from "./NavBar";
+import { StartIcon } from "./components/icons/StartIcon";
+import { StopIcon } from "./components/icons/StopIcon";
+import { SelectIcon } from "./components/icons/SelectIcon";
+import { WatchAllIcon } from "./components/icons/WatchAllIcon";
+import { RemoveAllIcon } from "./components/icons/RemoveAllIcon";
 
 const App = () => {
   const vscode = getVsCodeApi();
   const [isServerRunning, setIsServerRunning] = useState();
+  const [clickedOptionButton, setClickedOptionButton] = useState<number>(0);
   const [cssFiles, setCssFiles] = React.useState<string[]>([]);
   const [htmlReactFiles, setHtmlReactFiles] = React.useState<FileIdMap[]>([]);
   useEffect(() => {
@@ -47,8 +53,26 @@ const App = () => {
       <div className="parentContainer">
         <div className="container">
           <div className="optionButtonsHolder">
-            <Button className="optionButton">Home</Button>
-            <Button className="optionButton">Support</Button>
+            <Button
+              className={`${
+                clickedOptionButton === 0
+                  ? "optionButtonSelected hover:bg-[#fffffffc]"
+                  : "optionButtonNormal hover:bg-[#ffffff66]"
+              }`}
+              onClick={() => setClickedOptionButton(0)}
+            >
+              Home
+            </Button>
+            <Button
+              className={`${
+                clickedOptionButton === 1
+                  ? "optionButtonSelected hover:bg-[#fffffffc]"
+                  : "optionButtonNormal hover:bg-[#ffffff66]"
+              }`}
+              onClick={() => setClickedOptionButton(1)}
+            >
+              Support
+            </Button>
           </div>
           <div className="containerPanel">
             <div className="tweakSyncHomeOptions">
@@ -56,8 +80,8 @@ const App = () => {
                 variant={"default"}
                 className={`${
                   !isServerRunning
-                    ? "startTweakSync min-w-40 hover:bg-green-500"
-                    : "endTweakSync min-w-40 hover:bg-red-500"
+                    ? "startTweakSync hover:bg-[#00806bf6]"
+                    : "endTweakSync  hover:bg-[#e44141f3]"
                 }`}
                 onClick={() => {
                   vscode.postMessage({
@@ -66,16 +90,47 @@ const App = () => {
                   });
                 }}
               >
-                {!isServerRunning ? "Start TweakSync" : "End TweakSync"}
+                {!isServerRunning ? (
+                  <>
+                    <StartIcon />
+                    <span>Start</span>
+                  </>
+                ) : (
+                  <>
+                    <StopIcon />
+                    <span>Stop</span>
+                  </>
+                )}
               </Button>
-              <Button variant={"default"} className="tweakSyncButton" onClick={selectFiles}>
-                Select Files
+              <Button
+                variant={"default"}
+                className="tweakSyncButton selectFiles hover:bg-[#0055d4bf]"
+                onClick={selectFiles}
+              >
+                <>
+                  <SelectIcon />
+                  <span>Files</span>
+                </>
               </Button>
-              <Button variant={"default"} className="tweakSyncButton" onClick={watchFiles}>
-                Watch HTML Files
+              <Button
+                variant={"default"}
+                className="tweakSyncButton watchAll hover:bg-[#e65c1ff5]"
+                onClick={watchFiles}
+              >
+                <>
+                  <WatchAllIcon />
+                  <span>Watch All</span>
+                </>
               </Button>
-              <Button variant={"default"} className="tweakSyncButton" onClick={removeFiles}>
-                Remove All Files
+              <Button
+                variant={"default"}
+                className="tweakSyncButton removeAll hover:bg-[#c33c3cf3]"
+                onClick={removeFiles}
+              >
+                <>
+                  <RemoveAllIcon />
+                  <span>Remove All</span>
+                </>
               </Button>
             </div>
             <FileUriHolder cssFiles={cssFiles} htmlReactFiles={htmlReactFiles} />
