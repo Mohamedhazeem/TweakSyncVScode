@@ -15,11 +15,12 @@ function SupportPage() {
           <p className="contactSupportTitle">Contact Support</p>
           <ContactSupportIcon />
           <p className="contactSupportDialogue">Still have a question or need our help?</p>
+          <p className="contactSupportDialogue">
+            Is there a feature you'd like to see? Let us know!
+          </p>
           <a className="contactMail" href="mailto:insteadbusiness@gmail.com">
             insteadbusiness@gmail.com
           </a>
-        </div>
-        <div className="socialLinks">
           <p className="socialLinkDialogue">You can also find us here:</p>
           <div className="socialMediaIcons">
             {/* need to update linke */}

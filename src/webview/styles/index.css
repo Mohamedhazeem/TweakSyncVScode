@@ -173,10 +173,6 @@ html {
 .contactSupport {
   @apply bg-[#00808091] flex flex-col gap-3 items-center p-7 py-12 w-2/4 min-w-64 h-3/4 min-h-64 rounded-lg;
 }
-.socialLinks {
-  /* ffffff80 */
-  @apply bg-[#ff7f2ae5] flex flex-col gap-8 items-center p-12  w-2/4 min-w-64 h-3/4 min-h-64 rounded-lg;
-}
 .contactSupportTitle {
   @apply text-xl text-[#3d0000e5] font-bold;
 }
@@ -187,7 +183,7 @@ html {
   @apply text-base font-semibold text-[#3d0000e5] hover:text-[#3d0000e5] hover:underline;
 }
 .socialLinkDialogue {
-  @apply text-xl text-justify text-[#3d0000e5] font-bold;
+  @apply text-base text-justify font-medium;
 }
 .socialMediaIcons {
   @apply flex gap-2;
