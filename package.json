@@ -37,7 +37,16 @@
         "title": "Open TweakSync Hub",
         "category": "TweakSync"
       }
-    ]
+    ],
+    "icons": {
+      "tweakSync-icon": {
+        "description": "TweakSync icon",
+        "default": {
+          "fontPath": "resources/tweakSyncIcon.woff",
+          "fontCharacter": "\\e800"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",

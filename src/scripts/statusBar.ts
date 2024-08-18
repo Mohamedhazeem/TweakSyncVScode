@@ -7,7 +7,8 @@ export function registerStatusBarCommands(context: vscode.ExtensionContext) {
   const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
   //   statusBar.text = "$(server) TweakSync";
   statusBar.tooltip = "TweakSync (show Options)";
-  statusBar.text = "$(zap) TweakSync";
+  statusBar.text = "$(tweakSync-icon) TweakSync";
+
   // Command to handle status bar click
   const statusBarCommand = vscode.commands.registerCommand(
     "tweakSync.showStatusBarOptions",
