@@ -22,10 +22,19 @@ function SupportPage() {
         <div className="socialLinks">
           <p className="socialLinkDialogue">You can also find us here:</p>
           <div className="socialMediaIcons">
-            <FacebookIcon />
-            <InstagramIcon />
-            <RedditIcon />
-            <TwitterIcon />
+            {/* need to update linke */}
+            <a href="https://www.facebook.com/login/?next=https%3A%2F%2Fwww.facebook.com%2F">
+              <FacebookIcon />
+            </a>
+            <a href="https://www.facebook.com/login/?next=https%3A%2F%2Fwww.facebook.com%2F">
+              <InstagramIcon />
+            </a>
+            <a href="https://www.facebook.com/login/?next=https%3A%2F%2Fwww.facebook.com%2F">
+              <RedditIcon />
+            </a>
+            <a href="https://www.facebook.com/login/?next=https%3A%2F%2Fwww.facebook.com%2F">
+              <TwitterIcon />
+            </a>
           </div>
         </div>
       </div>
