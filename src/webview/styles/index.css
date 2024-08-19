@@ -140,6 +140,12 @@ html {
 .fileUriButton {
   @apply flex items-center justify-center gap-1 min-w-28 h-7 text-[#3d0000e5] text-sm font-bold;
 }
+.emptyList {
+  @apply bg-[#ffffff80] h-7 rounded-lg flex-1 px-4 text-base text-black text-nowrap text-clip text-justify font-semibold flex flex-col gap-1 w-full items-center justify-center;
+}
+.instruction-subtext {
+  @apply flex gap-1;
+}
 .watch {
   @apply bg-[#ff7f2ae5];
 }
