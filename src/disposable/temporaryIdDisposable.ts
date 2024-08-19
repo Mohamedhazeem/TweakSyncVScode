@@ -79,7 +79,11 @@ export let watchFiles = (context: vscode.ExtensionContext) => {
   return vscode.commands.registerCommand("tweakSync.watchFiles", async () => {
     console.time("watchFiles");
     const collectedFiles: FileIdMap[] = context.workspaceState.get("selectedHtmlReactFiles", []);
-
+    if (collectedFiles.length === 0) {
+      vscode.window.showInformationMessage("No files to watch.");
+      console.timeEnd("watchFiles");
+      return; // Exit early if there are no collected files
+    }
     // Create a map to update the fileIdMap
     const fileIdMapDict = new Map<string, FileIdMap>(
       collectedFiles.map((file) => [file.fileUri, file])
@@ -141,6 +145,7 @@ export let watchFiles = (context: vscode.ExtensionContext) => {
       command: "updateFileList",
       files: updatedFiles,
     });
+    vscode.window.showInformationMessage("File lists watched successfully");
   });
 };
 export let watchSingleFile = (context: vscode.ExtensionContext) => {
@@ -187,6 +192,7 @@ export let watchSingleFile = (context: vscode.ExtensionContext) => {
           "selectedHtmlReactFiles",
           Array.from(fileIdMapDict.values())
         );
+        vscode.window.showInformationMessage("File watched successfully");
       } catch (error) {
         if (error instanceof vscode.FileSystemError && error.code === "FileNotFound") {
           console.log(`File not found: ${fileUri.fsPath}`);
@@ -291,6 +297,7 @@ export let removeSingleFile = (context: vscode.ExtensionContext) => {
           htmlReact: htmlReactFiles,
         };
         await getPanel.webview.postMessage({ command: "updateFileList", files: updatedFiles });
+        vscode.window.showInformationMessage("File removed successfully");
       } else {
         console.log("current panel is undefined");
       }
@@ -328,6 +335,11 @@ export let removeFiles = (context: vscode.ExtensionContext) => {
     let cssFiles: string[] = context.workspaceState.get("selectedCssFiles", []);
     let htmlReactFiles: FileIdMap[] = context.workspaceState.get("selectedHtmlReactFiles", []);
 
+    if (cssFiles.length === 0 && htmlReactFiles.length === 0) {
+      vscode.window.showInformationMessage("No files to Remove.");
+      console.timeEnd("watchFiles");
+      return; // Exit early if there are no collected files
+    }
     // Combine both lists into one array for removal
     const filesToRemove = [...cssFiles, ...htmlReactFiles.map((file) => file.fileUri)];
 
@@ -386,6 +398,7 @@ export let removeFiles = (context: vscode.ExtensionContext) => {
         htmlReact: htmlReactFiles,
       };
       await getPanel.webview.postMessage({ command: "updateFileList", files: updatedFiles });
+      vscode.window.showInformationMessage("File lists removed successfully");
     } else {
       console.log("Current panel is undefined.");
     }
