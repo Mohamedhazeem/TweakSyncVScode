@@ -38,9 +38,8 @@ export let watchCollectedFiles = (
       context.workspaceState.update("selectedCssFiles", updatedCssFiles);
       cssFiles.splice(0, cssFiles.length, ...updatedCssFiles); // Update local reference
       console.log(`CSS file deleted: ${deletedUriString}`);
-      currentPanel?.webview.postMessage({ command: "updateFileList", files: updatedCssFiles });
+      currentPanel?.webview.postMessage({ command: "updateFileList", css: updatedCssFiles });
     }
-
     // Update HTML/React files state if necessary
     let updatedHtmlReactFiles = htmlReactFiles.filter((file) => file.fileUri !== deletedUriString);
     if (updatedHtmlReactFiles.length !== htmlReactFiles.length) {
@@ -49,7 +48,7 @@ export let watchCollectedFiles = (
       console.log(`HTML/React file deleted: ${deletedUriString}`);
       currentPanel?.webview.postMessage({
         command: "updateFileList",
-        files: updatedHtmlReactFiles,
+        htmlReact: updatedHtmlReactFiles,
       });
     }
   });
