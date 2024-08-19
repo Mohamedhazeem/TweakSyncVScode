@@ -1,11 +1,18 @@
+import { FileIdMap } from "@/types/ElementTypes";
 import * as vscode from "vscode";
+
 export let watchCollectedFiles = (
   currentPanel: vscode.WebviewPanel | undefined,
   context: vscode.ExtensionContext
 ) => {
-  const collectedFiles: string[] = context.workspaceState.get("selectedFiles", []);
+  // Retrieve collected CSS and HTML/React files
+  const cssFiles: string[] = context.workspaceState.get("selectedCssFiles", []);
+  const htmlReactFiles: FileIdMap[] = context.workspaceState.get("selectedHtmlReactFiles", []);
 
-  if (collectedFiles.length === 0) {
+  // Combine both file arrays for a comprehensive watcher setup
+  const allCollectedFiles = [...cssFiles, ...htmlReactFiles];
+
+  if (allCollectedFiles.length === 0) {
     console.log("No files to watch.");
     return;
   }
@@ -16,6 +23,7 @@ export let watchCollectedFiles = (
     return;
   }
 
+  // Create a file system watcher for the workspace folder
   const watcher = vscode.workspace.createFileSystemWatcher(
     new vscode.RelativePattern(workspaceFolder, "**/*")
   );
@@ -23,14 +31,26 @@ export let watchCollectedFiles = (
   // Handle file deletion
   watcher.onDidDelete((uri: vscode.Uri) => {
     const deletedUriString = uri.toString();
-    let updatedFiles: string[] = context.workspaceState.get("selectedFiles", []);
 
-    if (updatedFiles.includes(deletedUriString)) {
-      updatedFiles = updatedFiles.filter((file) => file !== deletedUriString);
-      context.workspaceState.update("selectedFiles", updatedFiles);
+    // Update CSS files state if necessary
+    let updatedCssFiles = cssFiles.filter((file) => file !== deletedUriString);
+    if (updatedCssFiles.length !== cssFiles.length) {
+      context.workspaceState.update("selectedCssFiles", updatedCssFiles);
+      cssFiles.splice(0, cssFiles.length, ...updatedCssFiles); // Update local reference
+      console.log(`CSS file deleted: ${deletedUriString}`);
+      currentPanel?.webview.postMessage({ command: "updateFileList", files: updatedCssFiles });
+    }
 
-      console.log(`File deleted: ${deletedUriString}`);
-      currentPanel?.webview.postMessage({ command: "updateFileList", files: updatedFiles });
+    // Update HTML/React files state if necessary
+    let updatedHtmlReactFiles = htmlReactFiles.filter((file) => file.fileUri !== deletedUriString);
+    if (updatedHtmlReactFiles.length !== htmlReactFiles.length) {
+      context.workspaceState.update("selectedHtmlReactFiles", updatedHtmlReactFiles);
+      htmlReactFiles.splice(0, htmlReactFiles.length, ...updatedHtmlReactFiles); // Update local reference
+      console.log(`HTML/React file deleted: ${deletedUriString}`);
+      currentPanel?.webview.postMessage({
+        command: "updateFileList",
+        files: updatedHtmlReactFiles,
+      });
     }
   });
 
