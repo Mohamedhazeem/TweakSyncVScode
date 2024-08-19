@@ -80,6 +80,7 @@ function OnReceiveMessage(currentPanel: vscode.WebviewPanel, context: vscode.Ext
             openLabel: "Select Files",
             canSelectFiles: true,
             canSelectFolders: false,
+            filters: { files: ["tsx", "jsx", "html", "css"] },
             title: "Select Files for TweakSync",
           });
 

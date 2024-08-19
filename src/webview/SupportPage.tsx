@@ -2,10 +2,8 @@ import React from "react";
 import { ContactSupportIcon } from "./components/icons/ContactSupportIcon";
 import { FacebookIcon } from "./components/icons/socialMediaIcons/FacebookIcon";
 import { InstagramIcon } from "./components/icons/socialMediaIcons/InstagramIcon";
-import { LinkedInIcon } from "./components/icons/socialMediaIcons/linkedInIcon";
 import { RedditIcon } from "./components/icons/socialMediaIcons/RedditIcon";
 import { TwitterIcon } from "./components/icons/socialMediaIcons/TwitterIcon";
-import { YoutubeIcon } from "./components/icons/socialMediaIcons/YotubeIcon";
 
 function SupportPage() {
   return (

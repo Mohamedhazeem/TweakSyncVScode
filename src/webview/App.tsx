@@ -1,14 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "../components/ui/button";
 import { getVsCodeApi } from "../utils/vscodeApi";
-import FileUriHolder from "./components/FileUriHolder";
 import { FileIdMap } from "@/types/ElementTypes";
 import NavBar from "./NavBar";
-import { StartIcon } from "./components/icons/StartIcon";
-import { StopIcon } from "./components/icons/StopIcon";
-import { SelectIcon } from "./components/icons/SelectIcon";
-import { WatchAllIcon } from "./components/icons/WatchAllIcon";
-import { RemoveAllIcon } from "./components/icons/RemoveAllIcon";
 import { HomePage } from "./HomePage";
 import SupportPage from "./SupportPage";
 

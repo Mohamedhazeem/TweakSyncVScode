@@ -77,8 +77,7 @@ export let injectTemporaryId = (context: vscode.ExtensionContext) => {
 };
 export let watchFiles = (context: vscode.ExtensionContext) => {
   return vscode.commands.registerCommand("tweakSync.watchFiles", async () => {
-    console.log("Inject Temporary IDs command executed.");
-
+    console.time("watchFiles");
     const collectedFiles: FileIdMap[] = context.workspaceState.get("selectedHtmlReactFiles", []);
 
     // Create a map to update the fileIdMap
@@ -127,7 +126,7 @@ export let watchFiles = (context: vscode.ExtensionContext) => {
         }
       }
     }
-
+    console.timeEnd("watchFiles");
     // Update the workspace state with the new FileIdMap entries
     context.workspaceState.update("selectedHtmlReactFiles", Array.from(fileIdMapDict.values()));
 
