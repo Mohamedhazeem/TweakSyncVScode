@@ -116,6 +116,9 @@ html {
 .tweakSyncHomeOptions {
   @apply flex md:flex-row flex-col gap-2 justify-center items-center py-3;
 }
+.serverConnectionInfo {
+  @apply text-[#3d0000e5] text-base font-semibold pl-12;
+}
 /* #endregion TweakSyncConatiner */
 
 /* #region FileUriList */

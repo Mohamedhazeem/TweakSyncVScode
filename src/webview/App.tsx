@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "../components/ui/button";
 import { getVsCodeApi } from "../utils/vscodeApi";
-import { FileIdMap } from "@/types/ElementTypes";
+import { FileIdMap } from "../types/ElementTypes";
 import NavBar from "./NavBar";
 import { HomePage } from "./HomePage";
 import SupportPage from "./SupportPage";
@@ -9,6 +9,7 @@ import SupportPage from "./SupportPage";
 const App = () => {
   const vscode = getVsCodeApi();
   const [isServerRunning, setIsServerRunning] = useState();
+  const [isServerConnected, setIsServerConnected] = useState();
   const [clickedOptionButton, setClickedOptionButton] = useState<number>(0);
   const [cssFiles, setCssFiles] = React.useState<string[]>([]);
   const [htmlReactFiles, setHtmlReactFiles] = React.useState<FileIdMap[]>([]);
@@ -17,7 +18,11 @@ const App = () => {
       const message = event.data;
       if (message.command === "serverStarted") {
         setIsServerRunning(message.value);
-      } else if (message.command === "updateFileList") {
+      }
+      if (message.command === "serverConnected") {
+        setIsServerConnected(message.value);
+      }
+      if (message.command === "updateFileList") {
         console.log("Updating file list:", message.files);
         setCssFiles(message.files.css || []);
         setHtmlReactFiles(message.files.htmlReact || []);
@@ -80,6 +85,7 @@ const App = () => {
                 removeFiles={removeFiles}
                 cssFiles={cssFiles}
                 htmlReactFiles={htmlReactFiles}
+                isServerConnected={isServerConnected}
               />
             )}
             {clickedOptionButton === 1 && <SupportPage />}

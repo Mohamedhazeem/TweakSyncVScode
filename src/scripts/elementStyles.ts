@@ -10,6 +10,10 @@ export async function elementStyles(message: ElementStyles, context: vscode.Exte
 
   const selectedCssFiles: string[] = context.workspaceState.get("selectedCssFiles", []);
 
+  if (selectedCssFiles.length === 0) {
+    console.log("No selected CSS files");
+    return;
+  }
   for (const fileUri of selectedCssFiles) {
     const file = vscode.Uri.parse(fileUri);
     console.log(`Processing file: ${file.toString()}`);

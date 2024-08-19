@@ -7,6 +7,8 @@ import { WatchAllIcon } from "./components/icons/WatchAllIcon";
 import { RemoveAllIcon } from "./components/icons/RemoveAllIcon";
 import FileUriHolder from "./components/FileUriHolder";
 import { FileIdMap } from "../types/ElementTypes";
+import { Spinner } from "../components/ui/spinner";
+import { TickIcon } from "./components/icons/TickIcon";
 
 type HomePageType = {
   isServerRunning: undefined;
@@ -16,6 +18,7 @@ type HomePageType = {
   removeFiles: () => void;
   cssFiles: string[];
   htmlReactFiles: FileIdMap[];
+  isServerConnected: undefined;
 };
 export function HomePage({
   isServerRunning,
@@ -25,6 +28,7 @@ export function HomePage({
   removeFiles,
   cssFiles,
   htmlReactFiles,
+  isServerConnected,
 }: HomePageType) {
   return (
     <>
@@ -85,6 +89,23 @@ export function HomePage({
             <span>Remove All</span>
           </>
         </Button>
+      </div>
+      <div className="serverConnectionInfo">
+        {isServerRunning ? (
+          isServerConnected ? (
+            <div className="flex items-center">
+              <TickIcon />
+              <span className="ml-1">Connected</span>
+            </div>
+          ) : (
+            <div className="flex items-center">
+              <Spinner className="text-red-500" size="small" />
+              <span className="ml-1">Waiting for connection...</span>
+            </div>
+          )
+        ) : (
+          ""
+        )}
       </div>
       <FileUriHolder cssFiles={cssFiles} htmlReactFiles={htmlReactFiles} />;
     </>

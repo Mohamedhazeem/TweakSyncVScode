@@ -9,6 +9,7 @@ interface ConnectedClient {
 }
 export let connectedClients: ConnectedClient[] = [];
 export let isServerRunning = false;
+export let isConnected = false;
 
 export const startServer = (
   currentPanel: vscode.WebviewPanel | undefined,
@@ -40,6 +41,13 @@ export const startServer = (
     ws.on("connection", function (socket) {
       connectedClients.push({ socket });
       console.log("WebSocket connection established from VS Code extension");
+      isConnected = true;
+      if (currentPanel) {
+        currentPanel.webview.postMessage({
+          command: "serverConnected",
+          value: isConnected,
+        });
+      }
 
       socket.on("message", async (message) => {
         try {
@@ -71,6 +79,7 @@ export const startServer = (
     ws.on("close", () => {
       console.log("WebSocket server closed");
       isServerRunning = false;
+      isConnected = false;
       ws = undefined; // Reset the WebSocket server instance
     });
   } catch (error) {
@@ -84,20 +93,26 @@ export const stopServer = (currentPanel: vscode.WebviewPanel | undefined) => {
     return;
   }
 
-  ws.close((err) => {
-    if (err) {
-      console.error("Error closing WebSocket server:", err);
-    } else {
-      console.log("WebSocket server stopped");
-      ws = undefined;
-      isServerRunning = false;
+  // Optionally send a disconnect message to all connected clients before closing the server
+  connectedClients.forEach((client) => {
+    client.socket.close();
+  });
 
-      if (currentPanel) {
-        currentPanel.webview.postMessage({
-          command: "serverStarted",
-          value: isServerRunning,
-        });
-      }
+  // Close the WebSocket server
+  ws.close(() => {
+    console.log("WebSocket server stopped");
+    ws = undefined;
+    isServerRunning = false;
+    isConnected = false;
+    if (currentPanel) {
+      currentPanel.webview.postMessage({
+        command: "serverStarted",
+        value: isServerRunning,
+      });
+      currentPanel.webview.postMessage({
+        command: "serverConnected",
+        value: isConnected,
+      });
     }
   });
 };
