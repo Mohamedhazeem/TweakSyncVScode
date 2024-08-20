@@ -64,10 +64,18 @@ export const startServer = (
         if (index !== -1) {
           connectedClients.splice(index, 1);
         }
+        currentPanel?.webview.postMessage({
+          command: "serverConnected",
+          value: false,
+        });
       });
 
       socket.on("error", (error) => {
         console.error("WebSocket client error:", error);
+        currentPanel?.webview.postMessage({
+          command: "serverConnected",
+          value: false,
+        });
       });
     });
 
