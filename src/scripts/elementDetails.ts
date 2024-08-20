@@ -57,7 +57,15 @@ export async function elementDetails(message: ElementDetails, context: vscode.Ex
 
         const edit = new vscode.WorkspaceEdit();
         edit.replace(document.uri, range, newText);
-        await vscode.workspace.applyEdit(edit);
+        const success = await vscode.workspace.applyEdit(edit);
+
+        if (success) {
+          // Save the document after applying the edit
+          await document.save();
+          console.log("File saved successfully.");
+        } else {
+          console.log("Failed to apply workspace edit.");
+        }
       } else {
         console.log("Element with data-temporaryid not found.");
       }

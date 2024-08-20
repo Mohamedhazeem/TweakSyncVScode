@@ -30,11 +30,19 @@ export async function elementStyles(message: ElementStyles, context: vscode.Exte
           document.positionAt(0),
           document.positionAt(originalContent.length)
         );
-        await vscode.window.showTextDocument(document).then((editor) => {
-          editor.edit((editBuilder) => {
+        const success = await vscode.window.showTextDocument(document).then((editor) => {
+          return editor.edit((editBuilder) => {
             editBuilder.replace(fullRange, updatedCSS);
           });
         });
+
+        if (success) {
+          // Save the document after applying the edit
+          await document.save();
+          console.log(`File saved successfully: ${file.toString()}`);
+        } else {
+          console.log(`Failed to apply edit for file: ${file.toString()}`);
+        }
       } else {
         console.log(`No changes needed for file: ${file.toString()}`);
       }
