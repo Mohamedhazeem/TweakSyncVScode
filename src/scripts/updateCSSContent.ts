@@ -1,10 +1,7 @@
 import { ExternalStyles, SelectorProcessType } from "../types/ElementTypes";
 import { updateRule } from "./updateRule";
 
-export async function updateCSSContent(
-  css: string,
-  styles: ExternalStyles
-): Promise<string> {
+export async function updateCSSContent(css: string, styles: ExternalStyles): Promise<string> {
   let updatedCSS = css;
 
   const selectorsToProcess: Array<SelectorProcessType> = [];
@@ -13,7 +10,7 @@ export async function updateCSSContent(
   externalSelectors(styles, selectorsToProcess);
 
   // Process selectors within @media rules
-  atRulesSelectors(styles, selectorsToProcess);
+  // atRulesSelectors(styles, selectorsToProcess);
 
   // Process each selector
   for (const [selector, newValues] of selectorsToProcess) {
@@ -65,17 +62,13 @@ function externalSelectors(
     });
   }
   if (styles.pseudoElementStyles) {
-    Object.entries(styles.pseudoElementStyles).forEach(
-      ([selector, newValues]) => {
-        selectorsToProcess.push([selector, newValues]);
-      }
-    );
+    Object.entries(styles.pseudoElementStyles).forEach(([selector, newValues]) => {
+      selectorsToProcess.push([selector, newValues]);
+    });
   }
   if (styles.pseudoClassStyles) {
-    Object.entries(styles.pseudoClassStyles).forEach(
-      ([selector, newValues]) => {
-        selectorsToProcess.push([selector, newValues]);
-      }
-    );
+    Object.entries(styles.pseudoClassStyles).forEach(([selector, newValues]) => {
+      selectorsToProcess.push([selector, newValues]);
+    });
   }
 }
