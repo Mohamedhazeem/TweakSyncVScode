@@ -2,17 +2,17 @@ import * as vscode from "vscode";
 import { HTMLElement, parse } from "node-html-parser";
 import { ElementDetails, FileIdMap } from "../types/ElementTypes";
 import { findElementRangeInDocument } from "../utils/findElementRange";
-import { findComponentFileWithId } from "../utils/findComponentFileWithId";
 import { checkWorkspaceFolders } from "../utils/checkWorkspaceFolders";
 import { getCurrentElementText } from "../utils/getCurrentElementText";
 import { createHtmlElement } from "../utils/createHtmlElement";
 import * as path from "path";
+import { TWEAKSYNC_ID } from "../utils/constant";
 export async function elementDetails(message: ElementDetails, context: vscode.ExtensionContext) {
   console.time("Element Search Start");
   const { temporaryId, tagName, textContent, attributes } = message.details;
 
-  if (attributes && attributes["data-temporaryid"]) {
-    delete attributes["data-temporaryid"];
+  if (attributes && attributes[TWEAKSYNC_ID]) {
+    delete attributes[TWEAKSYNC_ID];
   }
 
   checkWorkspaceFolders();
@@ -35,7 +35,7 @@ export async function elementDetails(message: ElementDetails, context: vscode.Ex
       const elementContent = document.getText(range);
       const root = parse(elementContent);
       const element = root.querySelector(
-        `[data-temporaryid="${temporaryId}"]`
+        `[${TWEAKSYNC_ID}="${temporaryId}"]`
       ) as HTMLElement | null;
 
       if (element) {
@@ -67,7 +67,7 @@ export async function elementDetails(message: ElementDetails, context: vscode.Ex
           console.log("Failed to apply workspace edit.");
         }
       } else {
-        console.log("Element with data-temporaryid not found.");
+        console.log("Element with data-tweaksync-id not found.");
       }
     } else {
       console.log("Range not found.");

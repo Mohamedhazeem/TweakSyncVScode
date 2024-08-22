@@ -1,6 +1,6 @@
 import { HTMLElement } from "node-html-parser";
 import { CreateHtmlElement, eventHandlerType } from "../types/ElementTypes";
-import { eventAttributes, selfClosingTags } from "./constant";
+import { eventAttributes, selfClosingTags, TWEAKSYNC_ID } from "./constant";
 export const attributeCamelCase: { [key: string]: string } = {
   accesskey: "accessKey",
   autocapitalize: "autoCapitalize",
@@ -63,10 +63,7 @@ const isSelfClosingTag = (tag: string): tag is SelfClosingTag => {
   return (selfClosingTags as readonly string[]).includes(tag);
 };
 
-const formatAttributes = (
-  attributes: eventHandlerType,
-  fileExtension: string
-): string => {
+const formatAttributes = (attributes: eventHandlerType, fileExtension: string): string => {
   return Object.entries(attributes)
     .map(([key, value]) => {
       const formattedKey = mapEventAttributes(key, fileExtension);
@@ -107,7 +104,7 @@ export function createHtmlElement({
 
   // Create the opening tag with attributes
   const formattedAttributes = formatAttributes(allAttributes, fileExtension);
-  const openingTag = `<${tagName} ${formattedAttributes} data-temporaryid="${temporaryId}" ${
+  const openingTag = `<${tagName} ${formattedAttributes} ${TWEAKSYNC_ID}="${temporaryId}" ${
     isSelfClosingTag(tagName!) ? " /" : ""
   }>`;
 
@@ -116,9 +113,7 @@ export function createHtmlElement({
 
   // Construct the newText based on the file extension
   newText = `${openingTag}${updatedTextContent}${
-    isSelfClosingTag(tagName!)
-      ? ""
-      : element.innerHTML.replace(currentText, "") + closingTag
+    isSelfClosingTag(tagName!) ? "" : element.innerHTML.replace(currentText, "") + closingTag
   }`;
 
   return newText;

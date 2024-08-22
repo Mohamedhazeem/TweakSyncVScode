@@ -1,3 +1,4 @@
+import { TWEAKSYNC_ID } from "../utils/constant";
 import * as vscode from "vscode";
 
 export const enum TempororyIdMode {
@@ -35,10 +36,10 @@ function generateRandomId(): string {
 //   const injectedCode = code.replace(
 //     /(<[a-zA-Z0-9]+)((?:\s+[a-zA-Z0-9:-]+(?:=(?:"[^"]*"|'[^']*'))?)*)\s*(\/?>|>)/g,
 //     (match, p1, p2, p3) => {
-//       if (!p2.includes("data-temporaryid")) {
+//       if (!p2.includes(TWEAKSYNC_ID)) {
 //         return `${p1}${p2}${
 //           p2.trim() ? " " : ""
-//         } data-temporaryid="tempid-${generateRandomId()}"${p3}`;
+//         } TWEAKSYNC_ID="tempid-${generateRandomId()}"${p3}`;
 //       }
 //       return match;
 //     }
@@ -65,11 +66,9 @@ export function injectTemporaryIds(code: string): string {
     return line.replace(
       /(<[a-zA-Z0-9]+)((?:\s+[a-zA-Z0-9:-]+(?:=(?:"[^"]*"|'[^']*'))?)*)\s*(\/?>|>)/g,
       (match, p1, p2, p3) => {
-        if (!p2.includes("data-temporaryid")) {
-          // Ensure there's always a space before adding the data-temporaryid attribute
-          return `${p1}${
-            p2.trim() ? ` ${p2}` : ""
-          } data-temporaryid="tempid-${generateRandomId()}"${p3}`;
+        if (!p2.includes(TWEAKSYNC_ID)) {
+          // Ensure there's always a space before adding the data-tweaksync-id attribute
+          return `${p1}${p2.trim() ? ` ${p2}` : ""} ${TWEAKSYNC_ID}="${generateRandomId()}"${p3}`;
         }
         return match;
       }
@@ -81,6 +80,7 @@ export function injectTemporaryIds(code: string): string {
 }
 
 export function removeTemporaryIds(code: string): string {
-  const removedCode = code.replace(/\s*data-temporaryid="[^"]*"/g, "");
+  const regex = new RegExp(`\\s*${TWEAKSYNC_ID}="[^"]*"`, "g");
+  const removedCode = code.replace(regex, "");
   return removedCode;
 }

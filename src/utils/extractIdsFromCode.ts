@@ -1,8 +1,9 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
+import { TWEAKSYNC_ID } from "./constant";
 
 export function extractIdsFromCode(code: string): string[] {
-  const idRegex = /data-temporaryid="(tempid-[^"]*)"/g;
+  const idRegex = new RegExp(`${TWEAKSYNC_ID}="([^"]*)"`, "g");
   const ids: string[] = [];
   let match;
   while ((match = idRegex.exec(code)) !== null) {

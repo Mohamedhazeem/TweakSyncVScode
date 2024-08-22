@@ -1,14 +1,11 @@
 import * as vscode from "vscode";
+import { TWEAKSYNC_ID } from "./constant";
 export function findElementRangeInDocument(
   document: vscode.TextDocument,
   id: string
 ): vscode.Range | null {
   const text = document.getText();
-  const startTagRegex = new RegExp(
-    `<([^\\s>]+)[^>]*\\s+data-temporaryid=["']${id}["'][^>]*>`,
-    "i"
-  );
-
+  const startTagRegex = new RegExp(`<([^\\s>]+)[^>]*\\s+${TWEAKSYNC_ID}=["']${id}["'][^>]*>`, "i");
   const startTagMatch = text.match(startTagRegex);
   if (!startTagMatch) {
     console.log("Start tag not found");
@@ -25,9 +22,7 @@ export function findElementRangeInDocument(
 
   if (isSelfClosing) {
     // For self-closing tags, the end position is the end of the start tag
-    const endPosition = document.positionAt(
-      startIndex + startTagMatch[0].length
-    );
+    const endPosition = document.positionAt(startIndex + startTagMatch[0].length);
     return new vscode.Range(startPosition, endPosition);
   } else {
     // For tags with end tags, handle nested tags
@@ -49,12 +44,7 @@ export function findElementRangeInDocument(
       const closeTags = textUntilMatch.match(endTagRegex) || [];
 
       nestedCount += openTags.length - closeTags.length - 1;
-      console.log(
-        "Open tags found between indexes:",
-        searchIndex,
-        matchIndex,
-        openTags.length
-      );
+      console.log("Open tags found between indexes:", searchIndex, matchIndex, openTags.length);
       console.log("Nested count:", nestedCount);
 
       if (nestedCount <= 0) {
