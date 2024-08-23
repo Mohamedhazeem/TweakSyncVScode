@@ -70,10 +70,14 @@ export async function updateRule(
   let ruleFound = false;
 
   function updateOrCreateRule(rule: Rule, selector: string, newValues: { [key: string]: string }) {
-    const newSelector = rule.selector
-      .split(",")
-      .map((s) => s.trim())
-      .join(", ");
+    let newSelector = rule.selector;
+    if (newSelector.includes(",")) {
+      newSelector = newSelector
+        .split(",")
+        .map((s) => s.trim())
+        .join(", ");
+      console.log(`newSelector ${newSelector}`);
+    }
     if (newSelector === selector) {
       ruleFound = true;
       // Remove all existing declarations for this rule
