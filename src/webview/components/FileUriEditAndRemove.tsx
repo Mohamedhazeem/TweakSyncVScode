@@ -28,6 +28,7 @@ function FileUriEditRemove({ file, index, isHtmlReact = false }: FileUriEditRemo
   };
   return (
     <div key={`fileUriEditRemove${file}`} className={`fileUriEditRemove`}>
+      <div className="fileUriNumber">{index + 1}</div>
       <div className="fileUri">{formattedPath}</div>
       <div className="fileUriButtonHolder">
         {isHtmlReact && (
