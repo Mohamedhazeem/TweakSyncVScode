@@ -14,35 +14,27 @@ export async function elementStyles(message: ElementStyles, context: vscode.Exte
     console.log("No selected CSS files");
     return;
   }
+
+  let selectorFound = false;
+
+  // Accumulate changes for bulk update
+  const changes: Map<string, string> = new Map();
+
   for (const fileUri of selectedCssFiles) {
     const file = vscode.Uri.parse(fileUri);
     console.log(`Processing file: ${file.toString()}`);
 
     try {
       const document = await vscode.workspace.openTextDocument(file);
-      let originalContent = document.getText();
+      const originalContent = document.getText();
 
       const updatedCSS = await updateCSSContent(originalContent, external);
 
       if (originalContent !== updatedCSS) {
-        console.warn(`Updating file: ${file.toString()}`);
-        const fullRange = new vscode.Range(
-          document.positionAt(0),
-          document.positionAt(originalContent.length)
-        );
-        const success = await vscode.window.showTextDocument(document).then((editor) => {
-          return editor.edit((editBuilder) => {
-            editBuilder.replace(fullRange, updatedCSS);
-          });
-        });
-
-        if (success) {
-          // Save the document after applying the edit
-          await document.save();
-          console.log(`File saved successfully: ${file.toString()}`);
-        } else {
-          console.log(`Failed to apply edit for file: ${file.toString()}`);
-        }
+        console.warn(`Changes detected for file: ${file.toString()}`);
+        changes.set(file.toString(), updatedCSS);
+        selectorFound = true;
+        break; // Stop if you find a file with changes
       } else {
         console.log(`No changes needed for file: ${file.toString()}`);
       }
@@ -50,5 +42,49 @@ export async function elementStyles(message: ElementStyles, context: vscode.Exte
       console.error(`Error processing file ${file.toString()}: ${error}`);
     }
   }
+
+  if (!selectorFound && selectedCssFiles.length > 0) {
+    const firstFileUri = vscode.Uri.parse(selectedCssFiles[0]);
+    try {
+      const document = await vscode.workspace.openTextDocument(firstFileUri);
+      const originalContent = document.getText();
+      const updatedCSS = await updateCSSContent(originalContent, external);
+
+      if (originalContent !== updatedCSS) {
+        console.warn(`Adding selectors to first file: ${firstFileUri.toString()}`);
+        changes.set(firstFileUri.toString(), updatedCSS);
+      }
+    } catch (error) {
+      console.error(`Error processing first file ${firstFileUri.toString()}: ${error}`);
+    }
+  }
+
+  // Apply changes to all modified files
+  for (const [fileUri, newContent] of changes.entries()) {
+    const file = vscode.Uri.parse(fileUri);
+    try {
+      const document = await vscode.workspace.openTextDocument(file);
+      const fullRange = new vscode.Range(
+        document.positionAt(0),
+        document.positionAt(newContent.length)
+      );
+
+      const success = await vscode.window.showTextDocument(document).then((editor) => {
+        return editor.edit((editBuilder) => {
+          editBuilder.replace(fullRange, newContent);
+        });
+      });
+
+      if (success) {
+        await document.save();
+        console.log(`File saved successfully: ${file.toString()}`);
+      } else {
+        console.log(`Failed to apply edit for file: ${file.toString()}`);
+      }
+    } catch (error) {
+      console.error(`Error applying changes to file ${fileUri}: ${error}`);
+    }
+  }
+
   console.timeEnd("Style Search Start");
 }
