@@ -46,34 +46,84 @@ function generateRandomId(): string {
 //   );
 //   return injectedCode;
 // }
+
+// export function injectTemporaryIds(code: string): string {
+//   // Split the code into lines for easier processing
+//   console.time("TemporaryIdStart");
+//   const lines = code.split("\n");
+
+//   // Regex patterns
+//   const hooksPattern = /^\s*const\s+\[\s*\w+(?:,\s*\w+)*\s*\]\s*=\s*use\w+\s*(?:<.*>)?\s*\(.*\);/; // Matches React hooks, including those with generics
+//   const genericJsxFragmentPattern = /^\s*<>\s*$|^\s*<\/>\s*$/; // Matches generic JSX fragments
+
+//   // Process each line
+//   const processedLines = lines.map((line) => {
+//     // Skip lines that contain React hooks or generic JSX fragments
+//     if (hooksPattern.test(line) || genericJsxFragmentPattern.test(line)) {
+//       return line; // Return the line unchanged
+//     }
+
+//     // Inject IDs into HTML elements
+//     return line.replace(
+//       /(<[a-zA-Z0-9]+)((?:\s+[a-zA-Z0-9:-]+(?:=(?:"[^"]*"|'[^']*'))?)*)\s*(\/?>|>)/g,
+//       (match, p1, p2, p3) => {
+//         if (!p2.includes(TWEAKSYNC_ID)) {
+//           // Ensure there's always a space before adding the data-tweaksync-id attribute
+//           return `${p1}${p2.trim() ? ` ${p2}` : ""} ${TWEAKSYNC_ID}="${generateRandomId()}"${p3}`;
+//         }
+//         return match;
+//       }
+//     );
+//   });
+//   console.timeEnd("TemporaryIdStart");
+//   // Join the processed lines back into a single string
+//   return processedLines.join("\n");
+// }
+const nonHtmlPatterns = [
+  /^\s*const\s+\[\s*\w+(?:,\s*\w+)*\s*\]\s*=\s*use\w+\s*(?:<.*>)?\s*\(.*\);/, // React hooks
+  /^\s*<>\s*$|^\s*<\/>\s*$/, //generic fragment
+  /^\s*type\s+\w+\s*=\s*\{.*\}/, // TypeScript type declarations
+  /^\s*interface\s+\w+\s*=\s*\{.*\}/, // TypeScript interface declarations
+  /^(const\s+\w+\s*:\s*React\.FC<[^>]*>)|^(function\s+\w+\s*\(.*\)\s*{)/m, // React component declarations
+  /^\s*enum\s+\w+\s*=\s*\{.*\}/, // TypeScript enum declarations
+  /^\s*class\s+\w+\s+extends\s+\w+\s*{/, // TypeScript class declarations
+  /^\s*(public|private|protected)?\s*\w+\s*:\s*\w+;|^\s*(public|private|protected)?\s*\w+\s*\(\s*\)\s*{/, // TypeScript class properties and methods
+  /^\s*function\s+\w+\s*\(.*\)\s*{/, // TypeScript function declarations
+  /^\s*\(\s*\w*\s*\)\s*=>\s*\{/, // Arrow functions
+  /^\s*import\s+.*\s+from\s+['"].*['"]/, // TypeScript import statements
+];
+
+// Check if a line is HTML or not
+function isHtmlLine(line: string): boolean {
+  return !nonHtmlPatterns.some((pattern) => pattern.test(line));
+}
 export function injectTemporaryIds(code: string): string {
-  // Split the code into lines for easier processing
   console.time("TemporaryIdStart");
+
+  // Split the code into lines for easier processing
   const lines = code.split("\n");
 
   // Regex patterns
-  const hooksPattern = /^\s*const\s+\[\s*\w+(?:,\s*\w+)*\s*\]\s*=\s*use\w+\s*(?:<.*>)?\s*\(.*\);/; // Matches React hooks, including those with generics
-  const genericJsxFragmentPattern = /^\s*<>\s*$|^\s*<\/>\s*$/; // Matches generic JSX fragments
+  const elementPattern =
+    /(<[a-zA-Z0-9]+)((?:\s+[a-zA-Z0-9:-]+(?:=(?:"[^"]*"|'[^']*'))?)*)\s*(\/?>|>)/g;
 
   // Process each line
   const processedLines = lines.map((line) => {
-    // Skip lines that contain React hooks or generic JSX fragments
-    if (hooksPattern.test(line) || genericJsxFragmentPattern.test(line)) {
-      return line; // Return the line unchanged
-    }
-
-    // Inject IDs into HTML elements
-    return line.replace(
-      /(<[a-zA-Z0-9]+)((?:\s+[a-zA-Z0-9:-]+(?:=(?:"[^"]*"|'[^']*'))?)*)\s*(\/?>|>)/g,
-      (match, p1, p2, p3) => {
+    if (isHtmlLine(line)) {
+      // Inject IDs into HTML elements
+      return line.replace(elementPattern, (match, p1, p2, p3) => {
         if (!p2.includes(TWEAKSYNC_ID)) {
           // Ensure there's always a space before adding the data-tweaksync-id attribute
           return `${p1}${p2.trim() ? ` ${p2}` : ""} ${TWEAKSYNC_ID}="${generateRandomId()}"${p3}`;
         }
         return match;
-      }
-    );
+      });
+    } else {
+      // Return non-HTML lines unchanged
+      return line;
+    }
   });
+
   console.timeEnd("TemporaryIdStart");
   // Join the processed lines back into a single string
   return processedLines.join("\n");
