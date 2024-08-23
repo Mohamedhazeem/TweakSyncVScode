@@ -75,43 +75,111 @@ export let injectTemporaryId = (context: vscode.ExtensionContext) => {
     }
   });
 };
+// export let watchFiles = (context: vscode.ExtensionContext) => {
+//   return vscode.commands.registerCommand("tweakSync.watchFiles", async () => {
+//     console.time("watchFiles");
+//     const collectedFiles: FileIdMap[] = context.workspaceState.get("selectedHtmlReactFiles", []);
+//     if (collectedFiles.length === 0) {
+//       vscode.window.showInformationMessage("No files to watch.");
+//       console.timeEnd("watchFiles");
+//       return; // Exit early if there are no collected files
+//     }
+//     // Create a map to update the fileIdMap
+//     const fileIdMapDict = new Map<string, FileIdMap>(
+//       collectedFiles.map((file) => [file.fileUri, file])
+//     );
+
+//     for (const fileEntry of collectedFiles) {
+//       const fileUri = vscode.Uri.parse(fileEntry.fileUri);
+
+//       if (!isSupportedFileType(fileUri)) {
+//         console.log(`Skipping unsupported file type: ${fileUri.fsPath}`);
+//         continue; // Skip this file if it's not supported
+//       }
+
+//       try {
+//         // Check if the file exists
+//         await vscode.workspace.fs.stat(fileUri);
+
+//         // Read the file content
+//         const fileContent = await vscode.workspace.fs.readFile(fileUri);
+//         let fileText = fileContent.toString();
+
+//         // Inject temporary IDs into the file content
+//         fileText = injectTemporaryIds(fileText);
+
+//         // Extract the newly injected IDs
+//         const newIds = extractIdsFromCode(fileText);
+
+//         // Update the FileIdMap entry with new IDs
+//         if (fileIdMapDict.has(fileUri.toString())) {
+//           const fileIdMap = fileIdMapDict.get(fileUri.toString())!;
+//           fileIdMap.ids = Array.from(new Set([...fileIdMap.ids, ...newIds]));
+//         } else {
+//           fileIdMapDict.set(fileUri.toString(), { fileUri: fileUri.toString(), ids: newIds });
+//         }
+
+//         // Write the updated content back to the file
+//         await vscode.workspace.fs.writeFile(fileUri, Buffer.from(fileText));
+//         console.log(`Temporary IDs injected and updated in ${fileUri.fsPath}.`);
+//       } catch (error) {
+//         if (error instanceof vscode.FileSystemError && error.code === "FileNotFound") {
+//           console.error(`File not found: ${fileUri.fsPath}`);
+//         } else {
+//           console.error(`Failed to process file ${fileUri.fsPath}:`, error);
+//         }
+//       }
+//     }
+//     console.timeEnd("watchFiles");
+//     // Update the workspace state with the new FileIdMap entries
+//     context.workspaceState.update("selectedHtmlReactFiles", Array.from(fileIdMapDict.values()));
+
+//     // Post the updated file list to the Webview
+//     const updatedFiles = {
+//       css: context.workspaceState.get<string[]>("selectedCssFiles", []),
+//       htmlReact: Array.from(fileIdMapDict.values()),
+//     };
+
+//     const getPanel = getCurrentPanel();
+//     getPanel?.webview.postMessage({
+//       command: "updateFileList",
+//       files: updatedFiles,
+//     });
+//     vscode.window.showInformationMessage("File lists watched successfully");
+//   });
+// };
 export let watchFiles = (context: vscode.ExtensionContext) => {
   return vscode.commands.registerCommand("tweakSync.watchFiles", async () => {
     console.time("watchFiles");
+
     const collectedFiles: FileIdMap[] = context.workspaceState.get("selectedHtmlReactFiles", []);
     if (collectedFiles.length === 0) {
       vscode.window.showInformationMessage("No files to watch.");
       console.timeEnd("watchFiles");
       return; // Exit early if there are no collected files
     }
-    // Create a map to update the fileIdMap
+
     const fileIdMapDict = new Map<string, FileIdMap>(
       collectedFiles.map((file) => [file.fileUri, file])
     );
 
-    for (const fileEntry of collectedFiles) {
+    const processFile = async (fileEntry: FileIdMap) => {
       const fileUri = vscode.Uri.parse(fileEntry.fileUri);
 
       if (!isSupportedFileType(fileUri)) {
         console.log(`Skipping unsupported file type: ${fileUri.fsPath}`);
-        continue; // Skip this file if it's not supported
+        return; // Skip this file if it's not supported
       }
 
       try {
-        // Check if the file exists
         await vscode.workspace.fs.stat(fileUri);
-
-        // Read the file content
         const fileContent = await vscode.workspace.fs.readFile(fileUri);
         let fileText = fileContent.toString();
 
-        // Inject temporary IDs into the file content
         fileText = injectTemporaryIds(fileText);
 
-        // Extract the newly injected IDs
         const newIds = extractIdsFromCode(fileText);
 
-        // Update the FileIdMap entry with new IDs
         if (fileIdMapDict.has(fileUri.toString())) {
           const fileIdMap = fileIdMapDict.get(fileUri.toString())!;
           fileIdMap.ids = Array.from(new Set([...fileIdMap.ids, ...newIds]));
@@ -119,7 +187,6 @@ export let watchFiles = (context: vscode.ExtensionContext) => {
           fileIdMapDict.set(fileUri.toString(), { fileUri: fileUri.toString(), ids: newIds });
         }
 
-        // Write the updated content back to the file
         await vscode.workspace.fs.writeFile(fileUri, Buffer.from(fileText));
         console.log(`Temporary IDs injected and updated in ${fileUri.fsPath}.`);
       } catch (error) {
@@ -129,12 +196,23 @@ export let watchFiles = (context: vscode.ExtensionContext) => {
           console.error(`Failed to process file ${fileUri.fsPath}:`, error);
         }
       }
+    };
+
+    // Process files with concurrency control (e.g., 5 concurrent processes)
+    const concurrencyLimit = 10;
+    const chunks = [];
+    for (let i = 0; i < collectedFiles.length; i += concurrencyLimit) {
+      chunks.push(collectedFiles.slice(i, i + concurrencyLimit));
     }
+
+    for (const chunk of chunks) {
+      await Promise.all(chunk.map(processFile));
+    }
+
     console.timeEnd("watchFiles");
-    // Update the workspace state with the new FileIdMap entries
+
     context.workspaceState.update("selectedHtmlReactFiles", Array.from(fileIdMapDict.values()));
 
-    // Post the updated file list to the Webview
     const updatedFiles = {
       css: context.workspaceState.get<string[]>("selectedCssFiles", []),
       htmlReact: Array.from(fileIdMapDict.values()),
@@ -145,9 +223,11 @@ export let watchFiles = (context: vscode.ExtensionContext) => {
       command: "updateFileList",
       files: updatedFiles,
     });
+
     vscode.window.showInformationMessage("File lists watched successfully");
   });
 };
+
 export let watchSingleFile = (context: vscode.ExtensionContext) => {
   return vscode.commands.registerCommand(
     "tweakSync.watchSingleFile",
