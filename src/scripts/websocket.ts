@@ -16,7 +16,7 @@ export const startServer = (
   context: vscode.ExtensionContext
 ) => {
   if (isServerRunning) {
-    console.log("WebSocket server is already running.");
+    console.log("server is already running.");
     if (currentPanel) {
       currentPanel.webview.postMessage({
         command: "serverStarted",
@@ -28,7 +28,7 @@ export const startServer = (
 
   try {
     ws = new WebSocket.Server({ port: PORT });
-    console.log("WebSocket server is Created.");
+    console.log("server is Created.");
     isServerRunning = true;
 
     if (currentPanel) {
@@ -40,7 +40,7 @@ export const startServer = (
 
     ws.on("connection", function (socket) {
       connectedClients.push({ socket });
-      console.log("WebSocket connection established from VS Code extension");
+      console.log("Connection established from VS Code extension");
       isConnected = true;
       if (currentPanel) {
         currentPanel.webview.postMessage({
@@ -55,7 +55,7 @@ export const startServer = (
           console.log(parsedMessage);
           await handleWebSocketMessage(parsedMessage, context);
         } catch (error) {
-          console.error("Error handling WebSocket message:", error);
+          console.error("Error handling message:", error);
         }
       });
 
@@ -80,18 +80,18 @@ export const startServer = (
     });
 
     ws.on("error", (error) => {
-      console.error("WebSocket server error:", error);
+      console.log("server error:", error);
       stopServer(currentPanel); // Stop the server if there is an error to avoid leaking resources.
     });
 
     ws.on("close", () => {
-      console.log("WebSocket server closed");
+      console.log("server closed");
       isServerRunning = false;
       isConnected = false;
       ws = undefined; // Reset the WebSocket server instance
     });
   } catch (error) {
-    console.error("Error starting WebSocket server:", error);
+    console.error("Error starting server:", error);
   }
 };
 
@@ -108,7 +108,7 @@ export const stopServer = (currentPanel: vscode.WebviewPanel | undefined) => {
 
   // Close the WebSocket server
   ws.close(() => {
-    console.log("WebSocket server stopped");
+    console.log("server stopped");
     ws = undefined;
     isServerRunning = false;
     isConnected = false;
