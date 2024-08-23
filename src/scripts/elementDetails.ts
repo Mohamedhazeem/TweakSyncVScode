@@ -7,8 +7,10 @@ import { getCurrentElementText } from "../utils/getCurrentElementText";
 import { createHtmlElement } from "../utils/createHtmlElement";
 import * as path from "path";
 import { TWEAKSYNC_ID } from "../utils/constant";
+
 export async function elementDetails(message: ElementDetails, context: vscode.ExtensionContext) {
   console.time("Element Search Start");
+
   const { temporaryId, tagName, textContent, attributes } = message.details;
 
   if (attributes && attributes[TWEAKSYNC_ID]) {
@@ -17,63 +19,73 @@ export async function elementDetails(message: ElementDetails, context: vscode.Ex
 
   checkWorkspaceFolders();
 
-  let htmlReactFiles: FileIdMap[] = context.workspaceState.get("selectedHtmlReactFiles", []);
+  const htmlReactFiles: FileIdMap[] = context.workspaceState.get("selectedHtmlReactFiles", []);
 
-  const targetFile = htmlReactFiles.find((file) => file.ids.includes(temporaryId!));
+  if (htmlReactFiles.length === 0) {
+    console.log("No HTML/React files found.");
+    console.timeEnd("Element Search Start");
+    return;
+  }
 
-  if (targetFile) {
-    const componentFileUri = vscode.Uri.parse(targetFile.fileUri);
+  // Accumulate workspace edits
+  const workspaceEdit = new vscode.WorkspaceEdit();
+  const filesToSave: vscode.Uri[] = [];
+
+  const filePromises = htmlReactFiles.map(async (file) => {
+    if (!file.ids.includes(temporaryId!)) {
+      return;
+    } // Skip if ID is not in this file
+
+    const componentFileUri = vscode.Uri.parse(file.fileUri);
     const document = await vscode.workspace.openTextDocument(componentFileUri);
-    const editor = await vscode.window.showTextDocument(document);
 
     const range = findElementRangeInDocument(document, temporaryId!);
-    console.log("range:", range);
-
-    if (range) {
-      console.log("range found:", range);
-
-      const elementContent = document.getText(range);
-      const root = parse(elementContent);
-      const element = root.querySelector(
-        `[${TWEAKSYNC_ID}="${temporaryId}"]`
-      ) as HTMLElement | null;
-
-      if (element) {
-        const currentText = getCurrentElementText(element);
-
-        // Create the new element content
-        const updatedTextContent = textContent;
-        let newText = createHtmlElement({
-          fileExtension: path.extname(componentFileUri.fsPath).toLowerCase(),
-          newText: "",
-          tagName,
-          temporaryId,
-          attributes,
-          updatedTextContent,
-          element,
-          currentText,
-        });
-        console.log("New text to replace with:", newText);
-
-        const edit = new vscode.WorkspaceEdit();
-        edit.replace(document.uri, range, newText);
-        const success = await vscode.workspace.applyEdit(edit);
-
-        if (success) {
-          // Save the document after applying the edit
-          await document.save();
-          console.log("File saved successfully.");
-        } else {
-          console.log("Failed to apply workspace edit.");
-        }
-      } else {
-        console.log("Element with data-tweaksync-id not found.");
-      }
-    } else {
-      console.log("Range not found.");
+    if (!range) {
+      return;
     }
+
+    const elementContent = document.getText(range);
+    const root = parse(elementContent);
+    const element = root.querySelector(`[${TWEAKSYNC_ID}="${temporaryId}"]`) as HTMLElement | null;
+
+    if (!element) {
+      return;
+    }
+
+    const currentText = getCurrentElementText(element);
+    const updatedTextContent = textContent;
+    const newText = createHtmlElement({
+      fileExtension: path.extname(componentFileUri.fsPath).toLowerCase(),
+      newText: "",
+      tagName,
+      temporaryId,
+      attributes,
+      updatedTextContent,
+      element,
+      currentText,
+    });
+
+    console.log(`New text to replace with in ${componentFileUri.toString()}:`, newText);
+
+    workspaceEdit.replace(document.uri, range, newText);
+    filesToSave.push(document.uri);
+  });
+
+  // Await all file processing promises
+  await Promise.all(filePromises);
+
+  // Apply all workspace edits
+  const success = await vscode.workspace.applyEdit(workspaceEdit);
+
+  if (success) {
+    // Save all documents after applying the edits
+    const savePromises = filesToSave.map((uri) =>
+      vscode.workspace.openTextDocument(uri).then((doc) => doc.save())
+    );
+    await Promise.all(savePromises);
+    console.log("All files saved successfully.");
   } else {
-    console.log("File with the specified temporary ID not found in the cached files.");
+    console.log("Failed to apply workspace edits.");
   }
 
   console.timeEnd("Element Search Start");
