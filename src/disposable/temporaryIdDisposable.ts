@@ -406,9 +406,9 @@ export let removeSingleFile = (context: vscode.ExtensionContext) => {
     }
   );
 };
-
 export let removeFiles = (context: vscode.ExtensionContext) => {
   return vscode.commands.registerCommand("tweakSync.removeFiles", async () => {
+    console.time("removeFiles");
     console.log("Remove group of files command executed.");
 
     // Retrieve current files from workspace state
@@ -417,53 +417,71 @@ export let removeFiles = (context: vscode.ExtensionContext) => {
 
     if (cssFiles.length === 0 && htmlReactFiles.length === 0) {
       vscode.window.showInformationMessage("No files to Remove.");
-      console.timeEnd("watchFiles");
+      console.timeEnd("removeFiles");
       return; // Exit early if there are no collected files
     }
+
     // Combine both lists into one array for removal
     const filesToRemove = [...cssFiles, ...htmlReactFiles.map((file) => file.fileUri)];
 
-    // Iterate through each file to remove
-    for (const fileToRemove of filesToRemove) {
-      const fileExt = path.extname(fileToRemove);
+    // Concurrency limit for file operations
+    const concurrencyLimit = 10;
+    const chunks = [];
+    for (let i = 0; i < filesToRemove.length; i += concurrencyLimit) {
+      chunks.push(filesToRemove.slice(i, i + concurrencyLimit));
+    }
 
-      // Determine file type and remove from appropriate array
-      if (allowedHtmlExtensions.includes(fileExt)) {
-        const updatedFiles = htmlReactFiles.map((fileIdMap) => {
-          if (fileIdMap.fileUri === fileToRemove) {
-            fileIdMap.ids = [];
-          }
-          return fileIdMap;
-        });
-        htmlReactFiles = updatedFiles.filter((file) => file.fileUri !== fileToRemove);
-      } else if (allowedCssExtensions.includes(fileExt)) {
-        cssFiles = cssFiles.filter((file) => file !== fileToRemove);
-      } else {
-        console.log(`Unsupported file type: ${fileExt}`);
-        continue;
-      }
+    // Function to process a chunk of files
+    const processChunk = async (files: string[]) => {
+      const filePromises = files.map(async (fileToRemove) => {
+        const fileExt = path.extname(fileToRemove);
 
-      // Attempt to remove temporary IDs from the file
-      const fileUri = vscode.Uri.parse(fileToRemove);
-      if (!isSupportedFileType(fileUri)) {
-        console.log(`File type not supported for temporary ID removal: ${fileUri.fsPath}`);
-        continue;
-      }
+        // Determine file type and update arrays
+        if (allowedHtmlExtensions.includes(fileExt)) {
+          htmlReactFiles = htmlReactFiles
+            .map((fileIdMap) => {
+              if (fileIdMap.fileUri === fileToRemove) {
+                fileIdMap.ids = [];
+              }
+              return fileIdMap;
+            })
+            .filter((file) => file.fileUri !== fileToRemove);
+        } else if (allowedCssExtensions.includes(fileExt)) {
+          cssFiles = cssFiles.filter((file) => file !== fileToRemove);
+        } else {
+          console.log(`Unsupported file type: ${fileExt}`);
+          return;
+        }
 
-      try {
-        // Check if the file exists before reading
-        await vscode.workspace.fs.stat(fileUri);
-        const fileContent = await vscode.workspace.fs.readFile(fileUri);
-        let fileText = fileContent.toString();
+        // Attempt to remove temporary IDs from the file
+        const fileUri = vscode.Uri.parse(fileToRemove);
+        if (!isSupportedFileType(fileUri)) {
+          console.log(`File type not supported for temporary ID removal: ${fileUri.fsPath}`);
+          return;
+        }
 
-        // Remove temporary IDs from the file content
-        fileText = removeTemporaryIds(fileText);
+        try {
+          // Check if the file exists before reading
+          await vscode.workspace.fs.stat(fileUri);
+          const fileContent = await vscode.workspace.fs.readFile(fileUri);
+          let fileText = fileContent.toString();
 
-        await vscode.workspace.fs.writeFile(fileUri, Buffer.from(fileText));
-        console.log(`Temporary IDs removed from ${fileUri.fsPath}.`);
-      } catch (error) {
-        console.log(`Failed to remove temporary IDs from ${fileUri.fsPath}:`, error);
-      }
+          // Remove temporary IDs from the file content
+          fileText = removeTemporaryIds(fileText);
+
+          await vscode.workspace.fs.writeFile(fileUri, Buffer.from(fileText));
+          console.log(`Temporary IDs removed from ${fileUri.fsPath}.`);
+        } catch (error) {
+          console.log(`Failed to remove temporary IDs from ${fileUri.fsPath}:`, error);
+        }
+      });
+
+      await Promise.all(filePromises);
+    };
+
+    // Process all chunks with concurrency
+    for (const chunk of chunks) {
+      await processChunk(chunk);
     }
 
     // Update workspace state with the remaining files
@@ -482,5 +500,7 @@ export let removeFiles = (context: vscode.ExtensionContext) => {
     } else {
       console.log("Current panel is undefined.");
     }
+
+    console.timeEnd("removeFiles");
   });
 };
