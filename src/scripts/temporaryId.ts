@@ -114,7 +114,11 @@ export function injectTemporaryIds(code: string): string {
       return line.replace(elementPattern, (match, p1, p2, p3) => {
         if (!p2.includes(TWEAKSYNC_ID)) {
           // Ensure there's always a space before adding the data-tweaksync-id attribute
-          return `${p1}${p2.trim() ? ` ${p2}` : ""} ${TWEAKSYNC_ID}="${generateRandomId()}"${p3}`;
+          const attributes = p2.trim();
+          return `${p1} ${attributes} ${TWEAKSYNC_ID}="${generateRandomId()}"${p3}`.replace(
+            /\s+/g,
+            " "
+          );
         }
         return match;
       });
