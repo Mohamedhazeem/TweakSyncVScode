@@ -23,11 +23,11 @@ const FileUriHolder = memo(({ cssFiles, htmlReactFiles = [] }: FileUriHolderType
           ) : (
             <div className="emptyList">
               <p className="font-bold">Empty List</p>
-              <p className="instruction-subtext">
+              <div className="instruction-subtext">
                 <p>Click the "</p>
                 <SelectIcon />
                 <p>Files" button to choose your HTML/React files.</p>
-              </p>
+              </div>
             </div>
           )}
         </div>
@@ -45,11 +45,11 @@ const FileUriHolder = memo(({ cssFiles, htmlReactFiles = [] }: FileUriHolderType
             <div className="emptyList">
               <p className="font-bold">Empty List</p>
               <p className="text-red-600">You need atleast one CSS file to apply styles.</p>
-              <p className="instruction-subtext">
+              <div className="instruction-subtext">
                 <p>Click the "</p>
                 <SelectIcon />
                 <p>Files" button to choose your CSS files.</p>
-              </p>
+              </div>
             </div>
           )}
         </div>
