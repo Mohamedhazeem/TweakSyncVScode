@@ -10,7 +10,7 @@ export let watchCollectedFiles = (
   const htmlReactFiles: FileIdMap[] = context.workspaceState.get("selectedHtmlReactFiles", []);
 
   // Combine both file arrays for a comprehensive watcher setup
-  const allCollectedFiles = [...cssFiles, ...htmlReactFiles];
+  const allCollectedFiles = [...cssFiles, ...htmlReactFiles.map((file) => file.fileUri)];
 
   if (allCollectedFiles.length === 0) {
     console.log("No files to watch.");
