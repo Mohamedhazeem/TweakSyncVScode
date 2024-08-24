@@ -26,7 +26,7 @@ const FileUriHolder = memo(({ cssFiles, htmlReactFiles = [] }: FileUriHolderType
               <div className="instruction-subtext">
                 <p>Click the "</p>
                 <SelectIcon />
-                <p>Files" button to choose your HTML/React files.</p>
+                <p>Files" button to choose your [.html, .tsx, .jsx] files.</p>
               </div>
             </div>
           )}
@@ -48,7 +48,7 @@ const FileUriHolder = memo(({ cssFiles, htmlReactFiles = [] }: FileUriHolderType
               <div className="instruction-subtext">
                 <p>Click the "</p>
                 <SelectIcon />
-                <p>Files" button to choose your CSS files.</p>
+                <p>Files" button to choose your .css files.</p>
               </div>
             </div>
           )}
