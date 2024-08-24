@@ -75,79 +75,6 @@ export let injectTemporaryId = (context: vscode.ExtensionContext) => {
     }
   });
 };
-// export let watchFiles = (context: vscode.ExtensionContext) => {
-//   return vscode.commands.registerCommand("tweakSync.watchFiles", async () => {
-//     console.time("watchFiles");
-//     const collectedFiles: FileIdMap[] = context.workspaceState.get("selectedHtmlReactFiles", []);
-//     if (collectedFiles.length === 0) {
-//       vscode.window.showInformationMessage("No files to watch.");
-//       console.timeEnd("watchFiles");
-//       return; // Exit early if there are no collected files
-//     }
-//     // Create a map to update the fileIdMap
-//     const fileIdMapDict = new Map<string, FileIdMap>(
-//       collectedFiles.map((file) => [file.fileUri, file])
-//     );
-
-//     for (const fileEntry of collectedFiles) {
-//       const fileUri = vscode.Uri.parse(fileEntry.fileUri);
-
-//       if (!isSupportedFileType(fileUri)) {
-//         console.log(`Skipping unsupported file type: ${fileUri.fsPath}`);
-//         continue; // Skip this file if it's not supported
-//       }
-
-//       try {
-//         // Check if the file exists
-//         await vscode.workspace.fs.stat(fileUri);
-
-//         // Read the file content
-//         const fileContent = await vscode.workspace.fs.readFile(fileUri);
-//         let fileText = fileContent.toString();
-
-//         // Inject temporary IDs into the file content
-//         fileText = injectTemporaryIds(fileText);
-
-//         // Extract the newly injected IDs
-//         const newIds = extractIdsFromCode(fileText);
-
-//         // Update the FileIdMap entry with new IDs
-//         if (fileIdMapDict.has(fileUri.toString())) {
-//           const fileIdMap = fileIdMapDict.get(fileUri.toString())!;
-//           fileIdMap.ids = Array.from(new Set([...fileIdMap.ids, ...newIds]));
-//         } else {
-//           fileIdMapDict.set(fileUri.toString(), { fileUri: fileUri.toString(), ids: newIds });
-//         }
-
-//         // Write the updated content back to the file
-//         await vscode.workspace.fs.writeFile(fileUri, Buffer.from(fileText));
-//         console.log(`Temporary IDs injected and updated in ${fileUri.fsPath}.`);
-//       } catch (error) {
-//         if (error instanceof vscode.FileSystemError && error.code === "FileNotFound") {
-//           console.error(`File not found: ${fileUri.fsPath}`);
-//         } else {
-//           console.error(`Failed to process file ${fileUri.fsPath}:`, error);
-//         }
-//       }
-//     }
-//     console.timeEnd("watchFiles");
-//     // Update the workspace state with the new FileIdMap entries
-//     context.workspaceState.update("selectedHtmlReactFiles", Array.from(fileIdMapDict.values()));
-
-//     // Post the updated file list to the Webview
-//     const updatedFiles = {
-//       css: context.workspaceState.get<string[]>("selectedCssFiles", []),
-//       htmlReact: Array.from(fileIdMapDict.values()),
-//     };
-
-//     const getPanel = getCurrentPanel();
-//     getPanel?.webview.postMessage({
-//       command: "updateFileList",
-//       files: updatedFiles,
-//     });
-//     vscode.window.showInformationMessage("File lists watched successfully");
-//   });
-// };
 export let watchFiles = (context: vscode.ExtensionContext) => {
   return vscode.commands.registerCommand("tweakSync.watchFiles", async () => {
     console.time("watchFiles");
@@ -232,11 +159,15 @@ export let watchSingleFile = (context: vscode.ExtensionContext) => {
   return vscode.commands.registerCommand(
     "tweakSync.watchSingleFile",
     async (fileUriString: string) => {
+      console.time("watchSingleFiles");
       const fileUri = vscode.Uri.parse(fileUriString);
+
       if (!context) {
         console.log("Extension context not available.");
+        console.timeEnd("watchSingleFiles");
         return;
       }
+
       try {
         // Check if the file exists
         await vscode.workspace.fs.stat(fileUri);
@@ -245,17 +176,20 @@ export let watchSingleFile = (context: vscode.ExtensionContext) => {
         const fileContent = await vscode.workspace.fs.readFile(fileUri);
         let fileText = fileContent.toString();
 
+        // Inject temporary IDs into the file content
         const newFileText = injectTemporaryIds(fileText);
         const newIds = extractIdsFromCode(newFileText);
 
+        // Retrieve existing FileIdMap from workspace state
         const existingFileIdMaps = context.workspaceState.get<FileIdMap[]>(
           "selectedHtmlReactFiles",
           []
         );
-        let fileIdMapDict = new Map<string, FileIdMap>(
+        const fileIdMapDict = new Map<string, FileIdMap>(
           existingFileIdMaps.map((file) => [file.fileUri, file])
         );
 
+        // Update FileIdMap with new IDs
         if (fileIdMapDict.has(fileUriString)) {
           const fileIdMap = fileIdMapDict.get(fileUriString)!;
           fileIdMap.ids = Array.from(new Set([...fileIdMap.ids, ...newIds]));
@@ -272,6 +206,7 @@ export let watchSingleFile = (context: vscode.ExtensionContext) => {
           "selectedHtmlReactFiles",
           Array.from(fileIdMapDict.values())
         );
+
         vscode.window.showInformationMessage("File watched successfully");
       } catch (error) {
         if (error instanceof vscode.FileSystemError && error.code === "FileNotFound") {
@@ -280,9 +215,11 @@ export let watchSingleFile = (context: vscode.ExtensionContext) => {
           console.log(`Failed to process file ${fileUri.fsPath}:`, error);
         }
       }
+      console.timeEnd("watchSingleFiles");
     }
   );
 };
+
 export let removeTemporaryId = (context: vscode.ExtensionContext) => {
   return vscode.commands.registerCommand("tweakSync.removeTemporaryIds", async () => {
     console.log("Remove Temporary IDs command executed.");
@@ -343,6 +280,7 @@ export let removeSingleFile = (context: vscode.ExtensionContext) => {
   return vscode.commands.registerCommand(
     "tweakSync.removeSingleFile",
     async (fileToRemove: string) => {
+      console.time("removeSingleFile");
       console.log("Remove file command executed.");
 
       // Retrieve current files from workspace state
@@ -351,23 +289,21 @@ export let removeSingleFile = (context: vscode.ExtensionContext) => {
 
       const fileExt = path.extname(fileToRemove);
 
-      // Determine file type and remove from appropriate array
+      // Filter out the file from the appropriate array
       if (allowedHtmlExtensions.includes(fileExt)) {
-        const updatedFiles = htmlReactFiles.map((fileIdMap) => {
-          if (fileIdMap.fileUri === fileToRemove) {
-            fileIdMap.ids = [];
-          }
-          return fileIdMap;
-        });
-        htmlReactFiles = updatedFiles.filter((file) => file.fileUri !== fileToRemove);
-        await context.workspaceState.update("selectedHtmlReactFiles", htmlReactFiles);
+        htmlReactFiles = htmlReactFiles.filter((fileIdMap) => fileIdMap.fileUri !== fileToRemove);
       } else if (allowedCssExtensions.includes(fileExt)) {
         cssFiles = cssFiles.filter((file) => file !== fileToRemove);
-        await context.workspaceState.update("selectedCssFiles", cssFiles);
       } else {
         console.log(`Unsupported file type: ${fileExt}`);
         return;
       }
+
+      // Update workspace state with the remaining files
+      await Promise.all([
+        context.workspaceState.update("selectedHtmlReactFiles", htmlReactFiles),
+        context.workspaceState.update("selectedCssFiles", cssFiles),
+      ]);
 
       // Post the updated file lists to the Webview
       const getPanel = getCurrentPanel();
@@ -379,33 +315,34 @@ export let removeSingleFile = (context: vscode.ExtensionContext) => {
         await getPanel.webview.postMessage({ command: "updateFileList", files: updatedFiles });
         vscode.window.showInformationMessage("File removed successfully");
       } else {
-        console.log("current panel is undefined");
+        console.log("Current panel is undefined");
       }
 
-      // Attempt to remove temporary IDs from the file
+      // Attempt to remove temporary IDs from the file if it still exists
       const fileUri = vscode.Uri.parse(fileToRemove);
-      if (!isSupportedFileType(fileUri)) {
+      if (isSupportedFileType(fileUri)) {
+        try {
+          await vscode.workspace.fs.stat(fileUri); // Check if file exists before reading
+          const fileContent = await vscode.workspace.fs.readFile(fileUri);
+          let fileText = fileContent.toString();
+
+          // Use the updated TemporaryIds function
+          fileText = removeTemporaryIds(fileText);
+
+          await vscode.workspace.fs.writeFile(fileUri, Buffer.from(fileText));
+          console.log(`Temporary IDs removed from ${fileUri.fsPath}.`);
+        } catch (error) {
+          console.log(`Failed to remove temporary IDs from ${fileUri.fsPath}:`, error);
+        }
+      } else {
         console.log(`File type not supported for temporary ID removal: ${fileUri.fsPath}`);
-        return;
       }
 
-      try {
-        // Check if file exists before reading
-        await vscode.workspace.fs.stat(fileUri);
-        const fileContent = await vscode.workspace.fs.readFile(fileUri);
-        let fileText = fileContent.toString();
-
-        // Use the updated TemporaryIds function
-        fileText = removeTemporaryIds(fileText);
-
-        await vscode.workspace.fs.writeFile(fileUri, Buffer.from(fileText));
-        console.log(`Temporary IDs removed from ${fileUri.fsPath}.`);
-      } catch (error) {
-        console.log(`Failed to remove temporary IDs from ${fileUri.fsPath}:`, error);
-      }
+      console.timeEnd("removeSingleFile");
     }
   );
 };
+
 export let removeFiles = (context: vscode.ExtensionContext) => {
   return vscode.commands.registerCommand("tweakSync.removeFiles", async () => {
     console.time("removeFiles");
