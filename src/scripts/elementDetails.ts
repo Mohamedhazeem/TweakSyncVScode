@@ -7,6 +7,7 @@ import { getCurrentElementText } from "../utils/getCurrentElementText";
 import { createHtmlElement } from "../utils/createHtmlElement";
 import * as path from "path";
 import { TWEAKSYNC_ID } from "../utils/constant";
+import { sendMessageToClient } from "./websocket";
 
 export async function elementDetails(message: ElementDetails, context: vscode.ExtensionContext) {
   console.time("Element Search Start");
@@ -84,6 +85,10 @@ export async function elementDetails(message: ElementDetails, context: vscode.Ex
     );
     await Promise.all(savePromises);
     console.log("All files saved successfully.");
+    sendMessageToClient({
+      action: "appliedElementSucessfully",
+      message: "Applied Element Sucessfully.",
+    });
   } else {
     console.log("Failed to apply workspace edits.");
   }

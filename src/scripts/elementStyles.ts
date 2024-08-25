@@ -1,10 +1,10 @@
 import * as vscode from "vscode";
 import { ElementStyles } from "../types/ElementTypes";
 import { updateCSSContent } from "./updateCSSContent";
+import { getCurrentPanel } from "@/utils/webviewPanel";
+import { sendMessageToClient } from "./websocket";
 
 export async function elementStyles(message: ElementStyles, context: vscode.ExtensionContext) {
-  console.time("Style Search Start");
-
   const { styles } = message;
   const { external } = styles;
 
@@ -12,6 +12,10 @@ export async function elementStyles(message: ElementStyles, context: vscode.Exte
 
   if (selectedCssFiles.length === 0) {
     console.log("No selected CSS files");
+    sendMessageToClient({
+      action: "noSelectedCssFiles",
+      message: "No selected CSS files found in TweakSync VS Code",
+    });
     return;
   }
 
@@ -78,6 +82,10 @@ export async function elementStyles(message: ElementStyles, context: vscode.Exte
       if (success) {
         await document.save();
         console.log(`File saved successfully: ${file.toString()}`);
+        sendMessageToClient({
+          action: "appliedStyleSucessfully",
+          message: "Applied Style Sucessfully.",
+        });
       } else {
         console.log(`Failed to apply edit for file: ${file.toString()}`);
       }
@@ -85,6 +93,4 @@ export async function elementStyles(message: ElementStyles, context: vscode.Exte
       console.error(`Error applying changes to file ${fileUri}: ${error}`);
     }
   }
-
-  console.timeEnd("Style Search Start");
 }

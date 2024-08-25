@@ -124,3 +124,10 @@ export const stopServer = (currentPanel: vscode.WebviewPanel | undefined) => {
     }
   });
 };
+
+export const sendMessageToClient = (message: any) => {
+  const clientSocket = connectedClients[0].socket;
+  if (clientSocket.readyState === WebSocket.OPEN) {
+    clientSocket.send(JSON.stringify(message));
+  }
+};
