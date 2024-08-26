@@ -88,6 +88,10 @@ export async function elementStyles(message: ElementStyles, context: vscode.Exte
         });
       } else {
         console.log(`Failed to apply edit for file: ${file.toString()}`);
+        sendMessageToClient({
+          action: "failedToApply",
+          message: "Failed to apply edits",
+        });
       }
     } catch (error) {
       console.error(`Error applying changes to file ${fileUri}: ${error}`);

@@ -91,6 +91,10 @@ export async function elementDetails(message: ElementDetails, context: vscode.Ex
     });
   } else {
     console.log("Failed to apply workspace edits.");
+    sendMessageToClient({
+      action: "failedToApply",
+      message: "Failed to apply edits",
+    });
   }
 
   console.timeEnd("Element Search Start");
