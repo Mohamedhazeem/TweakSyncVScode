@@ -23,7 +23,10 @@ export async function elementDetails(message: ElementDetails, context: vscode.Ex
   const htmlReactFiles: FileIdMap[] = context.workspaceState.get("selectedHtmlReactFiles", []);
 
   if (htmlReactFiles.length === 0) {
-    console.log("No HTML/React files found.");
+    sendMessageToClient({
+      action: "failedToApply",
+      message: "Failed to apply edits. No HTML files found.",
+    });
     console.timeEnd("Element Search Start");
     return;
   }

@@ -43,7 +43,11 @@ export async function elementStyles(message: ElementStyles, context: vscode.Exte
         console.log(`No changes needed for file: ${file.toString()}`);
       }
     } catch (error) {
-      console.error(`Error processing file ${file.toString()}: ${error}`);
+      sendMessageToClient({
+        action: "failedToApply",
+        message: "Failed to apply edits.",
+      });
+      console.log(`Error processing file ${file.toString()}: ${error}`);
     }
   }
 
@@ -59,7 +63,7 @@ export async function elementStyles(message: ElementStyles, context: vscode.Exte
         changes.set(firstFileUri.toString(), updatedCSS);
       }
     } catch (error) {
-      console.error(`Error processing first file ${firstFileUri.toString()}: ${error}`);
+      console.log(`Error processing first file ${firstFileUri.toString()}: ${error}`);
     }
   }
 
