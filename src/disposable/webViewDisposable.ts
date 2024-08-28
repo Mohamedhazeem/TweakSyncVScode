@@ -81,18 +81,16 @@ function OnReceiveMessage(currentPanel: vscode.WebviewPanel, context: vscode.Ext
             openLabel: "Select Files",
             canSelectFiles: true,
             canSelectFolders: false,
-            filters: { files: ["tsx", "jsx", "html", "css"] },
-            title: "Select Files for TweakSync",
+            filters: { files: ["tsx", "jsx", "html"] },
+            title: "Select HTML Files for TweakSync",
           });
 
           if (uris) {
             // Assuming cssFile and htmlFile functions return URIs
-            const cssUris = cssFile(uris, allowedCssExtensions);
+            // const cssUris = cssFile(uris, allowedCssExtensions);
             const htmlReactUris = htmlFile(uris, allowedHtmlExtensions);
 
             // Convert URIs to strings
-            const cssFileUris = cssUris.map((uri) => uri.toString());
-            const htmlReactFileUris = htmlReactUris.map((uri) => uri.toString());
 
             // Retrieve previously stored files
             let previousCssFiles = context.workspaceState.get<string[]>("selectedCssFiles", []);
@@ -102,7 +100,7 @@ function OnReceiveMessage(currentPanel: vscode.WebviewPanel, context: vscode.Ext
             );
 
             // Update CSS files
-            previousCssFiles = Array.from(new Set([...previousCssFiles, ...cssFileUris]));
+            // previousCssFiles = Array.from(new Set([...previousCssFiles, ...cssFileUris]));
 
             // Create a map to update HTML/React files
             const fileIdMapDict = new Map<string, FileIdMap>(
@@ -128,12 +126,63 @@ function OnReceiveMessage(currentPanel: vscode.WebviewPanel, context: vscode.Ext
             previousHtmlReactFiles = Array.from(fileIdMapDict.values());
 
             // Update the workspace state
+            // context.workspaceState.update("selectedCssFiles", previousCssFiles);
             context.workspaceState.update("selectedCssFiles", previousCssFiles);
             context.workspaceState.update("selectedHtmlReactFiles", previousHtmlReactFiles);
 
             // Send updated files to the webview
             const updatedFiles = {
+              // css: previousCssFiles,
               css: previousCssFiles,
+              htmlReact: previousHtmlReactFiles,
+            };
+            currentPanel.webview.postMessage({
+              command: "updateFileList",
+              files: updatedFiles,
+            });
+          }
+          break;
+        case "selectCssFile":
+          const cssUri = await vscode.window.showOpenDialog({
+            canSelectMany: false,
+            openLabel: "Select File",
+            canSelectFiles: true,
+            canSelectFolders: false,
+            filters: { files: ["css"] },
+            title: "Select CSS File for TweakSync",
+          });
+
+          if (cssUri) {
+            // Assuming cssFile and htmlFile functions return URIs
+            const cssUris = cssFile(cssUri, allowedCssExtensions);
+
+            // Convert URIs to strings
+            const cssFileUris = cssUris.map((uri) => uri.toString());
+
+            // Retrieve previously stored files
+            // let previousCssFiles = context.workspaceState.get<string[]>("selectedCssFiles", []);
+            const lastCssFileUri =
+              cssFileUris.length > 0 ? cssFileUris[cssFileUris.length - 1] : undefined;
+            let previousHtmlReactFiles = context.workspaceState.get<FileIdMap[]>(
+              "selectedHtmlReactFiles",
+              []
+            );
+
+            // Update CSS files
+            // previousCssFiles = Array.from(new Set([...previousCssFiles, ...cssFileUris]));
+
+            // Update the workspace state
+            // context.workspaceState.update("selectedCssFiles", previousCssFiles);
+            context.workspaceState.update(
+              "selectedCssFiles",
+              lastCssFileUri ? [lastCssFileUri] : []
+            );
+            context.workspaceState.update("selectedHtmlReactFiles", previousHtmlReactFiles);
+
+            // Send updated files to the webview
+            const updatedFiles = {
+              // css: previousCssFiles,
+              css: lastCssFileUri ? [lastCssFileUri] : [],
               htmlReact: previousHtmlReactFiles,
             };
             currentPanel.webview.postMessage({

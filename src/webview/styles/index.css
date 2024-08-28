@@ -96,7 +96,7 @@ html {
   @apply bg-[#ffffffd6] rounded-lg text-lg text-[#3d0000e5];
 }
 .tweakSyncButton {
-  @apply min-w-36 min-h-11 text-[#3d0000e5] text-lg font-semibold flex items-center justify-center gap-1;
+  @apply min-w-36 max-w-36 min-h-11 text-[#3d0000e5] text-lg font-semibold flex items-center justify-center gap-1;
 }
 .startTweakSync {
   @apply bg-[#00808091] tweakSyncButton;

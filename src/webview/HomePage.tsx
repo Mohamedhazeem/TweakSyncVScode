@@ -14,6 +14,7 @@ type HomePageType = {
   isServerRunning: undefined;
   vscode: VsCodeApi;
   selectFiles: () => void;
+  selectCssFiles: () => void;
   watchFiles: () => void;
   removeFiles: () => void;
   cssFiles: string[];
@@ -24,6 +25,7 @@ export function HomePage({
   isServerRunning,
   vscode,
   selectFiles,
+  selectCssFiles,
   watchFiles,
   removeFiles,
   cssFiles,
@@ -66,7 +68,17 @@ export function HomePage({
         >
           <>
             <SelectIcon />
-            <span>Files</span>
+            <span>HTML Files</span>
+          </>
+        </Button>
+        <Button
+          variant={"default"}
+          className="tweakSyncButton selectFiles hover:bg-[#0055d4bf]"
+          onClick={selectCssFiles}
+        >
+          <>
+            <SelectIcon />
+            <span>CSS File</span>
           </>
         </Button>
         <Button

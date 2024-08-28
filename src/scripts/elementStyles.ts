@@ -1,10 +1,11 @@
 import * as vscode from "vscode";
 import { ElementStyles } from "../types/ElementTypes";
 import { updateCSSContent } from "./updateCSSContent";
-import { getCurrentPanel } from "@/utils/webviewPanel";
+
 import { sendMessageToClient } from "./websocket";
 
 export async function elementStyles(message: ElementStyles, context: vscode.ExtensionContext) {
+  console.time("elementStyles");
   const { styles } = message;
   const { external } = styles;
 
@@ -16,6 +17,7 @@ export async function elementStyles(message: ElementStyles, context: vscode.Exte
       action: "noSelectedCssFiles",
       message: "No selected CSS files found in TweakSync VS Code",
     });
+    console.timeEnd("elementStyles");
     return;
   }
 
@@ -39,15 +41,14 @@ export async function elementStyles(message: ElementStyles, context: vscode.Exte
         changes.set(file.toString(), updatedCSS);
         selectorFound = true;
         break; // Stop if you find a file with changes
-      } else {
-        console.log(`No changes needed for file: ${file.toString()}`);
       }
     } catch (error) {
       sendMessageToClient({
         action: "failedToApply",
         message: "Failed to apply edits.",
       });
-      console.log(`Error processing file ${file.toString()}: ${error}`);
+      console.timeEnd("elementStyles");
+      return;
     }
   }
 
@@ -59,11 +60,22 @@ export async function elementStyles(message: ElementStyles, context: vscode.Exte
       const updatedCSS = await updateCSSContent(originalContent, external);
 
       if (originalContent !== updatedCSS) {
-        console.warn(`Adding selectors to first file: ${firstFileUri.toString()}`);
         changes.set(firstFileUri.toString(), updatedCSS);
+      } else {
+        sendMessageToClient({
+          action: "appliedStyleSucessfully",
+          message: "Applied Style Sucessfully.",
+        });
       }
     } catch (error) {
       console.log(`Error processing first file ${firstFileUri.toString()}: ${error}`);
+      sendMessageToClient({
+        action: "failedToApply",
+        message:
+          "Failed to apply edits. Make sure you are connected with VS Code and select the element you want to apply changes.",
+      });
+      console.timeEnd("elementStyles");
+      return;
     }
   }
 
@@ -72,17 +84,15 @@ export async function elementStyles(message: ElementStyles, context: vscode.Exte
     const file = vscode.Uri.parse(fileUri);
     try {
       const document = await vscode.workspace.openTextDocument(file);
-      const fullRange = new vscode.Range(
-        document.positionAt(0),
-        document.positionAt(newContent.length)
-      );
-
       const success = await vscode.window.showTextDocument(document).then((editor) => {
         return editor.edit((editBuilder) => {
+          const fullRange = new vscode.Range(
+            document.positionAt(0),
+            document.positionAt(document.getText().length)
+          );
           editBuilder.replace(fullRange, newContent);
         });
       });
-
       if (success) {
         await document.save();
         console.log(`File saved successfully: ${file.toString()}`);
@@ -94,11 +104,13 @@ export async function elementStyles(message: ElementStyles, context: vscode.Exte
         console.log(`Failed to apply edit for file: ${file.toString()}`);
         sendMessageToClient({
           action: "failedToApply",
-          message: "Failed to apply edits",
+          message:
+            "Failed to apply edits. Make sure you are connected with VS Code and select the element you want to apply changes.",
         });
       }
     } catch (error) {
       console.error(`Error applying changes to file ${fileUri}: ${error}`);
     }
   }
+  console.timeEnd("elementStyles");
 }

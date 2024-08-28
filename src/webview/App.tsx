@@ -42,6 +42,9 @@ const App = () => {
   const selectFiles = () => {
     vscode.postMessage({ command: "selectFiles" });
   };
+  const selectCssFiles = () => {
+    vscode.postMessage({ command: "selectCssFile" });
+  };
   const watchFiles = () => {
     vscode.postMessage({ command: "watchFiles" });
   };
@@ -81,6 +84,7 @@ const App = () => {
                 isServerRunning={isServerRunning}
                 vscode={vscode}
                 selectFiles={selectFiles}
+                selectCssFiles={selectCssFiles}
                 watchFiles={watchFiles}
                 removeFiles={removeFiles}
                 cssFiles={cssFiles}

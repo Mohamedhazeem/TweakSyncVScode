@@ -25,7 +25,7 @@ export async function elementDetails(message: ElementDetails, context: vscode.Ex
   if (htmlReactFiles.length === 0) {
     sendMessageToClient({
       action: "failedToApply",
-      message: "Failed to apply edits. No HTML files found.",
+      message: "No HTML files found in TweakSync VS Code.",
     });
     console.timeEnd("Element Search Start");
     return;

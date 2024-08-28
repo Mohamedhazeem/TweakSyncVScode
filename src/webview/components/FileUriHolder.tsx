@@ -22,18 +22,18 @@ const FileUriHolder = memo(({ cssFiles, htmlReactFiles = [] }: FileUriHolderType
             ))
           ) : (
             <div className="emptyList">
-              <p className="font-bold">Empty List</p>
+              <p className="font-bold">Empty HTML List</p>
               <div className="instruction-subtext">
                 <p>Click the "</p>
                 <SelectIcon />
-                <p>Files" button to choose your [.html, .tsx, .jsx] files.</p>
+                <p>HTML Files" button to choose your [.html, .tsx, .jsx] files.</p>
               </div>
             </div>
           )}
         </div>
       </div>
       <div className="css-container">
-        <span className="htmlCssTitle">CSS Files</span>
+        <span className="htmlCssTitle">CSS File</span>
         <div className="fileUriEditRemoveContainer">
           {cssFiles.length > 0 ? (
             cssFiles.map((file, index) => (
@@ -43,12 +43,12 @@ const FileUriHolder = memo(({ cssFiles, htmlReactFiles = [] }: FileUriHolderType
             ))
           ) : (
             <div className="emptyList">
-              <p className="font-bold">Empty List</p>
+              <p className="font-bold">Empty CSS File</p>
               <p className="text-red-600">You need atleast one CSS file to apply styles.</p>
               <div className="instruction-subtext">
                 <p>Click the "</p>
                 <SelectIcon />
-                <p>Files" button to choose your .css files.</p>
+                <p>CSS File" button to choose your .css file.</p>
               </div>
             </div>
           )}
