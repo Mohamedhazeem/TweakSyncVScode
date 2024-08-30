@@ -215,6 +215,6 @@ html {
   @apply list-disc px-8;
 }
 .listSquare {
-  @apply px-1 text-black text-lg text-justify font-medium;
+  @apply px-1 text-black text-base text-justify font-medium;
 }
 /*#endregion Tutorial*/
