@@ -4,8 +4,8 @@ export const WatchIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     xmlSpace="preserve"
-    width="1.2em"
-    height="1.2em"
+    width={props.width || "1.2em"}
+    height={props.height || "1.2em"}
     viewBox="0 0 6.831 4.658"
     {...props}
   >

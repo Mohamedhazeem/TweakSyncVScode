@@ -36,10 +36,7 @@ function FileUriEditRemove({ file, index, isHtmlReact = false }: FileUriEditRemo
             className="fileUriButton watch hover:bg-[#e65c1ff5]"
             onClick={() => watchFile(file)}
           >
-            <>
-              <WatchIcon />
-              <span>Watch</span>
-            </>
+            <span>Watch</span>
           </Button>
         )}
         {/* <Button onClick={() => editFile(file)}>Edit</Button> */}
@@ -47,10 +44,7 @@ function FileUriEditRemove({ file, index, isHtmlReact = false }: FileUriEditRemo
           className="fileUriButton remove hover:bg-[#c33c3cf3]"
           onClick={() => removeFile(file, index)}
         >
-          <>
-            <RemoveIcon />
-            <span>Remove</span>
-          </>
+          <span>Remove</span>
         </Button>
       </div>
     </div>
