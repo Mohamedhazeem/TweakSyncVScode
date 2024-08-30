@@ -70,6 +70,13 @@ module.exports = {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
+      listStyleType: {
+        square: 'square',
+      },
+      textColor:{
+        darkRed: "#3d0000e5",
+        darkBlue :"#2d2651ff"
+      }
     },
   },
   plugins: [require("tailwindcss-animate")],

@@ -5,6 +5,7 @@ import { FileIdMap } from "../types/ElementTypes";
 import NavBar from "./NavBar";
 import { HomePage } from "./HomePage";
 import SupportPage from "./SupportPage";
+import TutorialPage from "./TutorialPage";
 
 const App = () => {
   const vscode = getVsCodeApi();
@@ -69,6 +70,16 @@ const App = () => {
             </Button>
             <Button
               className={`${
+                clickedOptionButton === 2
+                  ? "optionButtonSelected hover:bg-[#fffffffc]"
+                  : "optionButtonNormal hover:bg-[#ffffff66]"
+              }`}
+              onClick={() => setClickedOptionButton(2)}
+            >
+              Tutorial
+            </Button>
+            <Button
+              className={`${
                 clickedOptionButton === 1
                   ? "optionButtonSelected hover:bg-[#fffffffc]"
                   : "optionButtonNormal hover:bg-[#ffffff66]"
@@ -93,6 +104,7 @@ const App = () => {
               />
             )}
             {clickedOptionButton === 1 && <SupportPage />}
+            {clickedOptionButton === 2 && <TutorialPage />}
           </div>
         </div>
       </div>
