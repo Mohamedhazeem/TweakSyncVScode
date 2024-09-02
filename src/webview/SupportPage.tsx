@@ -1,9 +1,9 @@
 import React from "react";
 import { ContactSupportIcon } from "./components/icons/ContactSupportIcon";
-import { FacebookIcon } from "./components/icons/socialMediaIcons/FacebookIcon";
-import { InstagramIcon } from "./components/icons/socialMediaIcons/InstagramIcon";
-import { RedditIcon } from "./components/icons/socialMediaIcons/RedditIcon";
-import { TwitterIcon } from "./components/icons/socialMediaIcons/TwitterIcon";
+// import { FacebookIcon } from "./components/icons/socialMediaIcons/FacebookIcon";
+// import { InstagramIcon } from "./components/icons/socialMediaIcons/InstagramIcon";
+// import { RedditIcon } from "./components/icons/socialMediaIcons/RedditIcon";
+// import { TwitterIcon } from "./components/icons/socialMediaIcons/TwitterIcon";
 
 function SupportPage() {
   return (
@@ -16,12 +16,12 @@ function SupportPage() {
           <p className="contactSupportDialogue">
             Is there a feature you'd like to see? Let us know!
           </p>
-          <a className="contactMail" href="mailto:insteadbusiness@gmail.com">
-            insteadbusiness@gmail.com
+          <a className="contactMail" href="mailto:support@tweaksync.dev">
+            support@tweaksync.dev
           </a>
-          <p className="socialLinkDialogue">You can also find us here:</p>
+          {/* <p className="socialLinkDialogue">You can also find us here:</p>
           <div className="socialMediaIcons">
-            {/* need to update linke */}
+
             <a href="https://www.facebook.com/login/?next=https%3A%2F%2Fwww.facebook.com%2F">
               <FacebookIcon />
             </a>
@@ -34,7 +34,7 @@ function SupportPage() {
             <a href="https://www.facebook.com/login/?next=https%3A%2F%2Fwww.facebook.com%2F">
               <TwitterIcon />
             </a>
-          </div>
+          </div> */}
         </div>
       </div>
     </>
