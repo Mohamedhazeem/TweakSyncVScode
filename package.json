@@ -4,6 +4,10 @@
   "description": "",
   "icon": "resources/icon128.png",
   "publisher": "TweakSync",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Mohamedhazeem/TweakSyncVScode.git"
+  },
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.89.0"
