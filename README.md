@@ -1,7 +1,5 @@
 # TweakSync
 
-## Description
-
 TweakSync is a powerful VS Code extension designed for front-end developers and web designers, enabling **real-time updates** of webpage elements and styles directly from Chrome to VS Code. With TweakSync, you can seamlessly integrate your browser with your code editor, allowing you to make styling changes in real-time without switching between tools, streamlining your web development workflow and improving efficiency.
 
 ## Features
@@ -20,46 +18,48 @@ We are constantly working to enhance TweakSync and bring you new capabilities. H
   Improved support for CSS functions, enabling more advanced styling options and greater flexibility in your designs.
 - **Atrules Support:**
   Full support for CSS Atrules (like @media, @supports, and @keyframes etc...) to offer a more comprehensive styling experience.
+- **Upcoming Library Support:**
+  Currently, TweakSync supports HTML and React. We are actively working on expanding support to additional libraries and frameworks in future updates to ensure a broader range of development environments can benefit from TweakSync’s functionality.
 - **And Many More...**
 
 ### Stay tuned for updates as we continue to add these features and more!
 
 ## Usage
 
-## Opening TweakSync:
+### Opening TweakSync:
 
-- ### Status Bar:
+- #### Status Bar:
   - Locate the **TweakSync Icon** in the status bar. Click on it to open the TweakSync Hub.
-- ### Command Palette:
+- #### Command Palette:
   - Press **Ctrl+Shift+P** to open the Command Palette.
   - Type **TweakSync: Open TweakSync Hub** and select it to open the TweakSync Hub.
 
-## Working with HTML Files:
+### Working with HTML Files:
 
-- ### Select HTML Files:
+- #### Select HTML Files:
   - Click on the **Select HTML Files** button to choose an HTML file.
-- ### Watch All:
+- #### Watch All:
   - Click the **Watch All** button to start monitoring all elements in the selected HTML files.
-- ### Watch Specific File:
+- #### Watch Specific File:
   - If you change a particular file and want to monitor it again, use the **Watch** button to re-watch that specific file.
 
-## Working with CSS Files:
+### Working with CSS Files:
 
-- ### Select CSS File:
+- #### Select CSS File:
   - Click on the **Select CSS File** button to choose a CSS file. Note that only one CSS file can be selected at a time.
-- ### No Need to Watch:
+- #### No Need to Watch:
   - You do not need to use the **Watch** functionality for CSS files. Simply selecting the CSS file is sufficient.
 
-## Starting and Managing TweakSync:
+### Starting and Managing TweakSync:
 
-- ### Start TweakSync:
+- #### Start TweakSync:
   - Click the **Start** button to begin the TweakSync process.
-- ### Remove All Files:
+- #### Remove All Files:
   - If you want to remove all tracked files, click the **Remove All** button.
 - ### Remove Single File:
   - To remove a specific file from tracking, click the **Remove** button for that file.
 
-## Contact Support
+### Contact Support
 
 #### Still have a question or need our help? Is there a feature you'd like to see? Let us know!
 

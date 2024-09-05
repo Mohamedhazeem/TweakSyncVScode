@@ -13,6 +13,7 @@
     "vscode": "^1.89.0"
   },
   "categories": [
+    "Programming Languages",
     "Other"
   ],
   "activationEvents": [
@@ -23,17 +24,8 @@
   "contributes": {
     "commands": [
       {
-        "command": "tweakSync.helloWorld",
-        "title": "Hello World"
-      },
-      {
         "command": "tweakSync.startserver",
         "title": "Start TweakSync",
-        "category": "TweakSync"
-      },
-      {
-        "command": "tweakSync.findcss",
-        "title": "Find CSS",
         "category": "TweakSync"
       },
       {

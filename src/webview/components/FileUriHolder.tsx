@@ -23,6 +23,10 @@ const FileUriHolder = memo(({ cssFiles, htmlReactFiles = [] }: FileUriHolderType
           ) : (
             <div className="emptyList">
               <p className="font-bold">Empty HTML List</p>
+              <p className="text-red-600">
+                TweakSync currently supports HTML and React. Stay tuned—more library support is
+                coming soon!
+              </p>
               <div className="instruction-subtext">
                 <p>Click the "</p>
                 <SelectIcon />
