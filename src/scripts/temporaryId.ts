@@ -104,8 +104,9 @@ export function injectTemporaryIds(code: string): string {
   const lines = code.split("\n");
 
   // Regex patterns
-  const elementPattern =
-    /(<[a-zA-Z0-9]+)((?:\s+[a-zA-Z0-9:-]+(?:=(?:"[^"]*"|'[^']*'))?)*)\s*(\/?>|>)/g;
+  // const elementPattern =
+  //   /(<[a-zA-Z0-9]+)((?:\s+[a-zA-Z0-9:-]+(?:=(?:"[^"]*"|'[^']*'))?)*)\s*(\/?>|>)/g;
+  const elementPattern = /(<[a-zA-Z][a-zA-Z0-9-]*)(\s+[^>]*?)(\/?>|>)/g;
 
   // Process each line
   const processedLines = lines.map((line) => {

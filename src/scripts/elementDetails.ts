@@ -10,8 +10,6 @@ import { TWEAKSYNC_ID } from "../utils/constant";
 import { sendMessageToClient } from "./websocket";
 
 export async function elementDetails(message: ElementDetails, context: vscode.ExtensionContext) {
-  console.time("Element Search Start");
-
   const { temporaryId, tagName, textContent, attributes } = message.details;
 
   if (attributes && attributes[TWEAKSYNC_ID]) {
@@ -69,7 +67,7 @@ export async function elementDetails(message: ElementDetails, context: vscode.Ex
       currentText,
     });
 
-    console.log(`New text to replace with in ${componentFileUri.toString()}:`, newText);
+    // console.log(`New text to replace with in ${componentFileUri.toString()}:`, newText);
 
     workspaceEdit.replace(document.uri, range, newText);
     filesToSave.push(document.uri);
