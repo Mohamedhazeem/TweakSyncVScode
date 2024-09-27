@@ -1,7 +1,7 @@
 {
   "name": "tweaksync",
   "displayName": "TweakSync",
-  "description": "TweakSync enables real-time synchronization of web page styles between your Chrome browser and VS Code, allowing for instant feedback while editing.",
+  "description": "TweakSync syncs web page styles between Chrome and VS Code",
   "icon": "resources/icon128.png",
   "publisher": "TweakSync",
   "repository": {
