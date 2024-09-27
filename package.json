@@ -1,14 +1,14 @@
 {
   "name": "tweaksync",
   "displayName": "TweakSync",
-  "description": "",
+  "description": "TweakSync enables real-time synchronization of web page styles between your Chrome browser and VS Code, allowing for instant feedback while editing.",
   "icon": "resources/icon128.png",
   "publisher": "TweakSync",
   "repository": {
     "type": "git",
     "url": "https://github.com/Mohamedhazeem/TweakSyncVScode.git"
   },
-  "version": "0.0.1",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.89.0"
   },
@@ -45,7 +45,6 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run package",
     "compile": "webpack",
     "watch": "webpack --watch",
     "build:webview": "webpack --config webpack.config.js",
