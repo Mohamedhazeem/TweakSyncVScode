@@ -1,4 +1,3 @@
-import { HTMLElement } from "node-html-parser";
 import { CreateHtmlElement, eventHandlerType } from "../types/ElementTypes";
 import { eventAttributes, selfClosingTags, TWEAKSYNC_ID } from "./constant";
 export const attributeCamelCase: { [key: string]: string } = {
