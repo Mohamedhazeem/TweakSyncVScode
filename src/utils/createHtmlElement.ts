@@ -106,7 +106,7 @@ export function createHtmlElement({
   // Create the opening tag with attributes
   const formattedAttributes = formatAttributes(allAttributes, fileExtension);
   // ${TWEAKSYNC_ID}="${temporaryId}"
-  const openingTag = `<${tagName} ${formattedAttributes} ${TWEAKSYNC_ID}="${temporaryId} ${
+  const openingTag = `<${tagName} ${formattedAttributes} ${TWEAKSYNC_ID}="${temporaryId}" ${
     isSelfClosingTag(tagName!) ? " /" : ""
   }>`;
 
