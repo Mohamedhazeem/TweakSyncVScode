@@ -64,3 +64,12 @@ We are constantly working to enhance TweakSync and bring you new capabilities. H
 #### Still have a question or need our help? Is there a feature you'd like to see? Let us know!
 
 #### You can reach us at: [support@tweaksync.dev](support@tweaksync.dev)
+
+## 🔒 License
+
+**Private / Proprietary Software**
+
+© 2025 TweakSync. All rights reserved.
+
+This software is proprietary and confidential.  
+Unauthorized copying, modification, distribution, or use of this software, in whole or in part, is strictly prohibited without explicit written permission from the owner.
