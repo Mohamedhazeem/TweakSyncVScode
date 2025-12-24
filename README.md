@@ -2,6 +2,12 @@
 
 TweakSync is a powerful VS Code extension designed for front-end developers and web designers, enabling **real-time updates** of webpage elements and styles directly from Chrome to VS Code. With TweakSync, you can seamlessly integrate your browser with your code editor, allowing you to make styling changes in real-time without switching between tools, streamlining your web development workflow and improving efficiency.
 
+# Tech Stack
+- **MERN**
+- Websocket
+- Typescript
+- Tailwind
+  
 ## Features
 
 - **Seamless Chrome-to-VS Code Syncing:** Instantly sync changes made in Chrome directly to your VS Code environment, ensuring a smooth and integrated workflow.
