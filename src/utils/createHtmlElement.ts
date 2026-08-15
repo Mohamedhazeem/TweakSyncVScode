@@ -1,4 +1,3 @@
-import { HTMLElement } from "node-html-parser";
 import { CreateHtmlElement, eventHandlerType } from "../types/ElementTypes";
 import { eventAttributes, selfClosingTags, TWEAKSYNC_ID } from "./constant";
 export const attributeCamelCase: { [key: string]: string } = {
@@ -101,9 +100,12 @@ export function createHtmlElement({
 
   // Merge attributes with event handlers
   const allAttributes = { ...attributes, ...eventHandlers };
+  // Ensure TWEAKSYNC_ID is always present
+  // allAttributes[TWEAKSYNC_ID] = temporaryId || "";
 
   // Create the opening tag with attributes
   const formattedAttributes = formatAttributes(allAttributes, fileExtension);
+  // ${TWEAKSYNC_ID}="${temporaryId}"
   const openingTag = `<${tagName} ${formattedAttributes} ${TWEAKSYNC_ID}="${temporaryId}" ${
     isSelfClosingTag(tagName!) ? " /" : ""
   }>`;

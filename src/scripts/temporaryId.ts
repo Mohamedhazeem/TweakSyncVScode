@@ -1,5 +1,9 @@
 import { TWEAKSYNC_ID } from "../utils/constant";
 import * as vscode from "vscode";
+import { parse } from "@babel/parser";
+import traverse from "@babel/traverse";
+import generate from "@babel/generator";
+import { JSXAttribute, jsxIdentifier, stringLiteral } from "@babel/types";
 
 export const enum TempororyIdMode {
   inject,
@@ -32,53 +36,6 @@ function generateRandomId(): string {
   }
   return randomId;
 }
-// export function injectTemporaryIds(code: string): string {
-//   const injectedCode = code.replace(
-//     /(<[a-zA-Z0-9]+)((?:\s+[a-zA-Z0-9:-]+(?:=(?:"[^"]*"|'[^']*'))?)*)\s*(\/?>|>)/g,
-//     (match, p1, p2, p3) => {
-//       if (!p2.includes(TWEAKSYNC_ID)) {
-//         return `${p1}${p2}${
-//           p2.trim() ? " " : ""
-//         } TWEAKSYNC_ID="tempid-${generateRandomId()}"${p3}`;
-//       }
-//       return match;
-//     }
-//   );
-//   return injectedCode;
-// }
-
-// export function injectTemporaryIds(code: string): string {
-//   // Split the code into lines for easier processing
-//   console.time("TemporaryIdStart");
-//   const lines = code.split("\n");
-
-//   // Regex patterns
-//   const hooksPattern = /^\s*const\s+\[\s*\w+(?:,\s*\w+)*\s*\]\s*=\s*use\w+\s*(?:<.*>)?\s*\(.*\);/; // Matches React hooks, including those with generics
-//   const genericJsxFragmentPattern = /^\s*<>\s*$|^\s*<\/>\s*$/; // Matches generic JSX fragments
-
-//   // Process each line
-//   const processedLines = lines.map((line) => {
-//     // Skip lines that contain React hooks or generic JSX fragments
-//     if (hooksPattern.test(line) || genericJsxFragmentPattern.test(line)) {
-//       return line; // Return the line unchanged
-//     }
-
-//     // Inject IDs into HTML elements
-//     return line.replace(
-//       /(<[a-zA-Z0-9]+)((?:\s+[a-zA-Z0-9:-]+(?:=(?:"[^"]*"|'[^']*'))?)*)\s*(\/?>|>)/g,
-//       (match, p1, p2, p3) => {
-//         if (!p2.includes(TWEAKSYNC_ID)) {
-//           // Ensure there's always a space before adding the data-tweaksync-id attribute
-//           return `${p1}${p2.trim() ? ` ${p2}` : ""} ${TWEAKSYNC_ID}="${generateRandomId()}"${p3}`;
-//         }
-//         return match;
-//       }
-//     );
-//   });
-//   console.timeEnd("TemporaryIdStart");
-//   // Join the processed lines back into a single string
-//   return processedLines.join("\n");
-// }
 const nonHtmlPatterns = [
   /^\s*const\s+\[\s*\w+(?:,\s*\w+)*\s*\]\s*=\s*use\w+\s*(?:<.*>)?\s*\(.*\);/, // React hooks
   /^\s*<>\s*$|^\s*<\/>\s*$/, //generic fragment
@@ -97,40 +54,66 @@ const nonHtmlPatterns = [
 function isHtmlLine(line: string): boolean {
   return !nonHtmlPatterns.some((pattern) => pattern.test(line));
 }
+// export function injectTemporaryIds(code: string): string {
+//   const lines = code.split("\n");
+//   // const elementPattern =
+//   //   /(<[a-zA-Z0-9]+)((?:\s+[a-zA-Z0-9:-]+(?:=(?:"[^"]*"|'[^']*'))?)*)\s*(\/?>|>)/g;
+//   const elementPattern = /(<[a-zA-Z][a-zA-Z0-9-]*)(\s+[^>]*?)(\/?>|>)/g;
+
+//   // Process each line
+//   const processedLines = lines.map((line) => {
+//     if (isHtmlLine(line)) {
+//       return line.replace(elementPattern, (match, p1, p2, p3) => {
+//         if (!p2.includes(TWEAKSYNC_ID)) {
+//           const attributes = p2.trim();
+//           return `${p1} ${attributes} ${TWEAKSYNC_ID}="${generateRandomId()}"${p3}`.replace(
+//             /\s+/g,
+//             " "
+//           );
+//         }
+//         return match;
+//       });
+//     } else {
+//       // Return non-HTML lines unchanged
+//       return line;
+//     }
+//   });
+
+//   console.timeEnd("TemporaryIdStart");
+//   return processedLines.join("\n");
+// }
 export function injectTemporaryIds(code: string): string {
-  console.time("TemporaryIdStart");
-
-  // Split the code into lines for easier processing
-  const lines = code.split("\n");
-
-  // Regex patterns
-  const elementPattern =
-    /(<[a-zA-Z0-9]+)((?:\s+[a-zA-Z0-9:-]+(?:=(?:"[^"]*"|'[^']*'))?)*)\s*(\/?>|>)/g;
-
-  // Process each line
-  const processedLines = lines.map((line) => {
-    if (isHtmlLine(line)) {
-      // Inject IDs into HTML elements
-      return line.replace(elementPattern, (match, p1, p2, p3) => {
-        if (!p2.includes(TWEAKSYNC_ID)) {
-          // Ensure there's always a space before adding the data-tweaksync-id attribute
-          const attributes = p2.trim();
-          return `${p1} ${attributes} ${TWEAKSYNC_ID}="${generateRandomId()}"${p3}`.replace(
-            /\s+/g,
-            " "
-          );
-        }
-        return match;
-      });
-    } else {
-      // Return non-HTML lines unchanged
-      return line;
-    }
+  const ast = parse(code, {
+    sourceType: "module",
+    plugins: ["jsx", "typescript"],
   });
 
-  console.timeEnd("TemporaryIdStart");
-  // Join the processed lines back into a single string
-  return processedLines.join("\n");
+  traverse(ast, {
+    JSXOpeningElement(path) {
+      const attributes = path.get("attributes");
+
+      // Check if the TWEAKSYNC_ID already exists
+      const hasTweakSyncId = attributes.some((attrPath) => {
+        const attr = attrPath.node; // Get the node from the path
+        return attr.type === "JSXAttribute" && attr.name.name === TWEAKSYNC_ID;
+      });
+
+      if (!hasTweakSyncId) {
+        // Generate a new ID and add it to the attributes
+        const newId = generateRandomId();
+        const newAttribute: JSXAttribute = {
+          type: "JSXAttribute",
+          name: jsxIdentifier(TWEAKSYNC_ID),
+          value: stringLiteral(newId),
+        };
+
+        path.pushContainer("attributes", newAttribute);
+      }
+    },
+  });
+
+  const { code: transformedCode } = generate(ast);
+  return transformedCode;
 }
 
 export function removeTemporaryIds(code: string): string {

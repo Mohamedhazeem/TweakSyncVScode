@@ -1,6 +1,6 @@
 import WebSocket from "ws";
 import { handleWebSocketMessage } from "./server";
-import { PORT } from "../utils/constant";
+import { LOCAL_HOST, PORT } from "../utils/constant";
 import * as vscode from "vscode";
 
 let ws: WebSocket.Server | undefined;
@@ -27,7 +27,7 @@ export const startServer = (
   }
 
   try {
-    ws = new WebSocket.Server({ port: PORT });
+    ws = new WebSocket.Server({ port: PORT, host: LOCAL_HOST });
     console.log("server is Created.");
     isServerRunning = true;
 
