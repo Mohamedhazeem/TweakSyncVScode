@@ -14,6 +14,11 @@ dist-ssr
 out
 *.txt
 *.vsix
+# Incremental build info + Jest cache
+out/.tsbuild
+.tsbuildinfo
+coverage
+*.tsbuildinfo
 # Editor directories and files
 .vscode/*
 .vscode-test

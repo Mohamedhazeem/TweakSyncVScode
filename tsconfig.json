@@ -4,9 +4,12 @@
     "target": "ES6", // Or another version like "ES5"
     "lib": ["DOM", "ES6"], // Include DOM for browser environment
     "jsx": "react", // Enable JSX for React
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@domain/*": ["./src/domain/*"],
+      "@application/*": ["./src/application/*"],
+      "@infrastructure/*": ["./src/infrastructure/*"],
+      "@webview/*": ["./src/webview/*"],
+      "@/*": ["./src/*"]
     },
     "sourceMap": true,
     "rootDir": "src",

@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./out/.tsbuild/application.tsbuildinfo"
+  },
+  "include": ["src/application"],
+  "exclude": ["**/*.test.ts", "**/*.test.tsx"]
+}

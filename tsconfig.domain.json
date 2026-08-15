@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./out/.tsbuild/domain.tsbuildinfo"
+  },
+  "include": ["src/domain"],
+  "exclude": ["**/*.test.ts", "**/*.test.tsx"]
+}
