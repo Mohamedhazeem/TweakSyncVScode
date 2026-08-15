@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import { getWebviewContent } from "../scripts/webView";
-import { isServerRunning, isConnected, startServer, stopServer } from "../scripts/websocket";
+import { server, startServer, stopServer } from "../scripts/websocket";
 import {
   allowedCssExtensions,
   allowedHtmlExtensions,
@@ -72,8 +72,8 @@ function OnReceiveMessage(currentPanel: vscode.WebviewPanel, context: vscode.Ext
           }
           return;
         case "requestServerStatus":
-          currentPanel?.webview.postMessage({ command: "serverStarted", value: isServerRunning });
-          currentPanel?.webview.postMessage({ command: "serverConnected", value: isConnected });
+          currentPanel?.webview.postMessage({ command: "serverStarted", value: server.isRunning });
+          currentPanel?.webview.postMessage({ command: "serverConnected", value: server.isConnected });
           break;
         case "selectFiles":
           const uris = await vscode.window.showOpenDialog({

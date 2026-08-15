@@ -1,7 +1,6 @@
 import * as vscode from "vscode";
-import { startServer, stopServer } from "../scripts/websocket";
+import { server, startServer, stopServer } from "../scripts/websocket";
 import { getCurrentPanel, setCurrentPanel } from "../utils/webviewPanel";
-import { isServerRunning } from "../scripts/websocket";
 export function registerStatusBarCommands(context: vscode.ExtensionContext) {
   // Create a status bar item
   const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
@@ -17,7 +16,7 @@ export function registerStatusBarCommands(context: vscode.ExtensionContext) {
       const choice = await vscode.window.showInformationMessage(
         "TweakSync Options",
         "Open Hub",
-        `${!isServerRunning ? "Start TweakSync" : "Stop TweakSync"}`
+        `${!server.isRunning ? "Start TweakSync" : "Stop TweakSync"}`
       );
 
       if (choice === "Open Hub") {
