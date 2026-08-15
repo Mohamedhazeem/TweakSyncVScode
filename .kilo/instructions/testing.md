@@ -16,5 +16,4 @@
 
 - Write integration tests against the extension's VS Code API surface.
 - Mock WebSocket and file system interactions where possible; avoid requiring Chrome or a real server in unit tests.
-- Keep test files alongside the code they test, or in `src/test/` for cross-cutting integration tests.
 - Assert behavior, not implementation details.

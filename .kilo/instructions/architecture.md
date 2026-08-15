@@ -6,57 +6,21 @@ TweakSync is a VS Code extension that bridges Chrome DevTools with the editor. T
 
 ## Project Layout
 
-```
-src/
-  extension.ts              Extension entry point; registers commands and disposables
-  scripts/
-    server.ts               WebSocket server lifecycle
-    websocket.ts            Command handlers for server start/stop
-    statusBar.ts            Status bar UI and commands
-    activityPanel.ts        Side panel contributions
-  disposable/
-    temporaryIdDisposable.ts File watch/inject/remove disposables
-    webViewDisposable.ts    Webview panel lifecycle
-  utils/
-    watchCollectedFiles.ts  File watching logic
-    webviewPanel.ts         Current panel state
-    createHtmlElement.ts    DOM element creation helpers
-    elementDetails.ts       Element metadata extraction
-    elementStyles.ts        Style parsing helpers
-    updateRule.ts           CSS rule mutation
-    updateCSSContent.ts     CSS content replacement
-    constant.ts             Shared constants
-  webview/
-    index.tsx               Webview entry
-    App.tsx                 Root webview component
-    HomePage.tsx            Main hub UI
-    TutorialPage.tsx        Onboarding flow
-    SupportPage.tsx         Help/support UI
-    NavBar.tsx              Webview navigation
-    components/             Reusable webview components
-    styles/
-      index.css             Webview styles
-  types/
-    ElementTypes.ts         Shared TS types
-  components/ui/            shadcn/ui components
-  lib/
-    utils.ts                Utility helpers
-  test/
-    extension.test.ts       Integration tests
-dist/                       Compiled extension output
-out/webview/                Compiled webview output
-```
+- **Extension host** (`src/extension.ts`): Registers commands, disposables, and status bar items. Delegates to `scripts/`, `utils/`, and `disposable/`.
+- **WebSocket server** (`src/scripts/websocket.ts`, `src/scripts/server.ts`): Listens on `127.0.0.1:16016`, receives `ElementDetails` or `ElementStyles` messages from Chrome, and dispatches to handlers.
+- **Disposables** (`src/disposable/`): Manage file injection, watching, and webview panel lifecycle via VS Code disposables stored in `context.subscriptions`.
+- **Webview UI** (`src/webview/`): React 19 app rendered in a VS Code WebviewPanel. Uses shadcn/ui and Tailwind CSS v4.
+- **Workspace state**: Tracked files are stored in `context.workspaceState` under `selectedCssFiles` and `selectedHtmlReactFiles`.
+
+## Communication
+
+- Extension → webview: `panel.webview.postMessage({ command, value })` or `{ command, files }`
+- Webview → extension: `vscode.postMessage({ command, value })`
+- Extension listens via `panel.webview.onDidReceiveMessage`; webview listens via `window.addEventListener("message", ...)`
 
 ## Key Patterns
 
-- Extension commands register disposable functions in `extension.ts` and push them to `context.subscriptions`.
-- The current webview panel is stored via `webviewPanel.ts` getters/setters.
-- File watching is split between `temporaryIdDisposable.ts` (inject/remove) and `watchCollectedFiles.ts` (watched set).
-- Webview communication uses VS Code's `WebviewPanel.webview` messaging API.
-- The WebSocket server is managed by `scripts/server.ts` and `scripts/websocket.ts`.
-
-## Build
-
-- Extension backend: `webpack` compiles `src/extension.ts` to `dist/extension.js`.
-- Webview frontend: `webpack --config webpack.config.js` compiles React/TSX to `out/webview/`.
-- Both use `ts-loader` and Babel presets for TypeScript and React.
+- Commands return disposables; push all to `context.subscriptions` in `activate()`.
+- Current webview panel is accessed via `getCurrentPanel()` / `setCurrentPanel()` in `src/utils/webviewPanel.ts`.
+- Temporary IDs (`data-tweaksync-id`) are injected into HTML/React files to link DOM elements back to source files.
+- `vscode.WorkspaceEdit` is used for bulk text replacements; `vscode.TextEditor.edit` is used for CSS updates.

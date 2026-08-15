@@ -1,28 +1,27 @@
-# TypeScript
+# TypeScript & Code Style
 
 ## Compiler Configuration
 
-- `tsconfig.json` target: `ES6`
-- Module system: `NodeNext`
-- JSX: `react`
-- `strict: true` is enabled
-- Path alias: `@/*` maps to `src/*`
+- `tsconfig.json`: `strict: true`, `target: ES6`, `module: NodeNext`, `jsx: react`
+- Path alias: `@/*` maps to `src/*` (used in select files for `src/types/ElementTypes`)
 
 ## Conventions
 
-- Use the `@/` path alias for imports from `src/` to keep imports stable and concise.
+- Use the `@/` path alias for imports from `src/` where configured.
 - Prefer explicit types for public APIs and complex internals; use type inference for local variables when the type is obvious.
-- Do not use `any`. Use `unknown` when the shape is truly uncertain.
-- Prefer `interface` for object shapes that may be extended; use `type` for unions, intersections, and aliases.
-- Avoid enums; use const objects or union string types instead.
-- Use named exports for all modules; avoid default exports.
+- Prefer `interface` for object shapes; use `type` for unions, intersections, and aliases.
+- `const enum` is used for `TempororyIdMode` in `src/scripts/temporaryId.ts`.
+- `any` is used for external message shapes and legacy typings.
+- Default exports are used in webview components.
 
-## Extension API Types
+## Formatting
 
-- Use `vscode` module types for all VS Code APIs.
-- Guard Webview messages against unknown shapes; do not cast blindly.
+- Indentation: 4 spaces for TypeScript; 2 spaces for webview React/TSX.
+- Semicolons: required, enforced by `@typescript-eslint/semi: warn`.
+- camelCase for variables, functions, and filenames; PascalCase for React components and types/interfaces.
 
-## React/Webview Types
+## Error Handling
 
-- Use React 19 types from `react` and `react-dom`.
-- Event handlers on webview components should use the standard React event types from the bundled React version.
+- Use `try/catch` around I/O and WebSocket operations.
+- Log errors to `console.warn` or `console.error`; do not silently swallow failures.
+- Do not throw literal values; use `Error` instances.
