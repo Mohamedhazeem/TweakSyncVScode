@@ -1,50 +1,72 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!-- 
+Sync Impact Report:
+- Version change: unversioned → 1.0.0 (Initial constitution creation)
+- Added sections: Core Principles (5), Technology Constraints, Development Workflow, Governance
+- No removed sections
+- No renamed principles
+- Follow-up TODOs: None
+-->
+
+# TweakSync Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### Clean Architecture
+TweakSync MUST follow clean architecture principles with strict separation of concerns across layers. The extension host, WebSocket server, webview UI, and Chrome client MUST each operate in their own bounded context with unidirectional dependencies. Domain logic MUST NOT depend on infrastructure details. All inter-layer communication MUST use well-defined interfaces or explicit message contracts.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### SOLID Design Principles
+Every module, class, and function MUST adhere to the five SOLID principles:
+- Single Responsibility: Each module MUST have exactly one reason to change
+- Open/Closed: Extension points MUST be open for extension but closed for modification
+- Liskov Substitution: Subtypes MUST be substitutable for their base types without altering correctness
+- Interface Segregation: Clients MUST NOT be forced to depend on methods they do not use; prefer small, focused interfaces
+- Dependency Inversion: High-level modules MUST NOT depend on low-level modules; both MUST depend on abstractions
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### Design Patterns
+Proven design patterns MUST be applied consistently to solve recurring problems:
+- Use Command pattern for VS Code command registration and disposables
+- Use Observer pattern for WebSocket message dispatch and webview communication
+- Use Factory or Abstract Factory for creating extension-specific objects
+- Use Strategy pattern for interchangeable behaviors (e.g., file watching modes)
+- Document the pattern, rationale, and tradeoffs when introducing a new pattern
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### Extensibility & Testability
+The codebase MUST be structured to support future feature growth without rewrites:
+- Public APIs and extension points MUST be explicitly documented and versioned
+- Modules MUST be independently testable with minimal coupling to VS Code APIs
+- Use dependency injection and abstraction layers to enable mocking in tests
+- New features MUST be added via extension points, not by modifying existing core logic
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### Performance & Big O Compliance
+All algorithms and data structures MUST be evaluated for time and space complexity:
+- Hot paths (WebSocket message handling, file watching, style diffing) MUST target O(n) or better
+- Document the Big O complexity of any non-trivial algorithm in code comments or adjacent documentation
+- Avoid nested loops and repeated linear scans on unbounded input; prefer maps, sets, and indexed structures
+- Profile before optimizing; use VS Code performance APIs appropriately
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Technology Constraints
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+The extension MUST target VS Code API compatibility with the declared engine version in package.json. All WebSocket communication MUST use JSON message contracts with explicit TypeScript typing. Secrets, tokens, and credentials MUST NEVER be logged or exposed in webview panels. The project MUST maintain TypeScript strict mode (`strict: true`) and enforce it through CI.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+## Development Workflow
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+All contributions MUST follow Test-Driven Development: write or update failing tests, confirm failure, then implement. Every PR MUST pass lint, typecheck, and existing test suites before merge. Code review MUST verify compliance with this constitution and flag any principle violations. Use `npm run watch` during active development for fast rebuild cycles.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution is the authoritative design contract for TweakSync. It supersedes all informal practices and ad-hoc decisions. Amendments require:
+1. A written proposal describing the change, rationale, and migration plan
+2. Approval from project maintainers
+3. A semantic version bump reflecting the scope of change
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+Versioning policy:
+- MAJOR: Backward-incompatible governance or principle changes
+- MINOR: New principles, sections, or materially expanded guidance
+- PATCH: Clarifications, wording fixes, and non-semantic refinements
+
+Compliance review expectations:
+- All PRs must verify constitution alignment
+- Complexity that violates a principle MUST be explicitly justified in the PR description
+- Deferred items MUST be tracked with TODO markers and resolved within one sprint
+
+**Version**: 1.0.0 | **Ratified**: 2026-08-16 | **Last Amended**: 2026-08-16
