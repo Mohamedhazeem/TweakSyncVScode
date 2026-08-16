@@ -7,7 +7,24 @@ TweakSync is a powerful VS Code extension designed for front-end developers and 
 - Websocket
 - Typescript
 - Tailwind
-  
+
+## Architecture
+
+TweakSync follows a layered **clean architecture** with strict separation of concerns. The entry point (`src/extension.ts`) is a thin composition root that delegates wiring to `src/infrastructure/container.ts`. Module resolution uses path aliases defined in `tsconfig.base.json` (`@domain/*`, `@application/*`, `@infrastructure/*`, `@webview/*`, `@/*`).
+
+| Layer | Location | Responsibility |
+|-------|----------|----------------|
+| **Domain** | `src/domain/` | Pure business logic with no VS Code or `ws` imports. Style-language extension point (`StyleLanguageHandler`), the handler `registry`, CSS parser/updater, temporary-ID logic, and message contracts. |
+| **Application** | `src/application/` | Use cases and orchestration: `SyncService` (routes inbound WebSocket traffic), `StyleService` (applies style changes via the registry), and the command handlers (`start-server`, `watch-files`, `remove-files`). |
+| **Infrastructure** | `src/infrastructure/` | Concrete adapters: VS Code wrappers (`workspace-state`, `window`, `commands`, `workspace-fs`), WebSocket `server`/`client`, the webview `message-bus`, and `messaging/handlers` (inbound `elementStyles` / `elementDetails` adapters). |
+| **Webview** | `src/webview/` | React UI (TweakSync Hub) decoupled from the extension host via typed messages. |
+
+**Extension point (User Story 1):** new styling languages are supported by implementing `StyleLanguageHandler` and registering it on the `StyleLanguageRegistry` — no core module changes required.
+
+**Cross-cutting guards:** `scripts/validate-deps.mjs` enforces zero circular dependencies, and `scripts/check-complexity.mjs` enforces a 300-line file cap and a per-function complexity budget.
+
+> **Migration note:** a small number of legacy modules under `src/scripts/` (`statusBar`, `websocket`, `webView`, `server`) and `src/disposable/webViewDisposable.ts` are still wired into the composition root. The new architecture currently delegates to them; fully re-implementing these behind the new abstractions is the remaining cleanup step.
+
 ## Features
 
 - **Seamless Chrome-to-VS Code Syncing:** Instantly sync changes made in Chrome directly to your VS Code environment, ensuring a smooth and integrated workflow.

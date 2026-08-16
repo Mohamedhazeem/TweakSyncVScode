@@ -18,7 +18,7 @@ export class SyncService {
 
   register(): void {
     this.server.onMessage(async (message) => {
-      await handleWebSocketMessage(message as never, this.context);
+      await handleWebSocketMessage(message, this.context);
     });
 
     this.server.onConnectionChange((connected) => {

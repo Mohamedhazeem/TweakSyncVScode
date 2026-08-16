@@ -1,19 +1,19 @@
-import type {
-  IncomingWebSocketMessage,
-  OutgoingWebSocketMessage,
-} from "../../domain/messaging/contracts";
+import type { WebSocketMessage } from "../../types/ElementTypes";
+import type { OutgoingWebSocketMessage } from "../../domain/messaging/contracts";
 import type { StyleLanguageHandler } from "../../domain/style/handler";
 
 /**
- * Transport-level types for the WebSocket layer. The message shapes themselves
- * are owned by `domain/messaging/contracts.ts`; this module re-exports them and
- * adds the connection/dispatch types used by the server and client
- * implementations in `infrastructure/websocket/*`.
+ * Transport-level types for the WebSocket layer. The inbound message wire shape
+ * is the shared `WebSocketMessage` union (see `types/ElementTypes.ts`), narrowed
+ * at the handler boundary by `isElementDetails` / `isElementStyles`. Outbound
+ * status messages are described by `OutgoingWebSocketMessage` from
+ * `domain/messaging/contracts.ts`. Connection/dispatch types below are used by
+ * the server and client implementations in `infrastructure/websocket/*`.
  */
-export type { IncomingWebSocketMessage, OutgoingWebSocketMessage };
+export type { OutgoingWebSocketMessage };
 
 export type MessageHandler = (
-  message: IncomingWebSocketMessage
+  message: WebSocketMessage
 ) => Promise<void> | void;
 
 export type ConnectionStateListener = (connected: boolean) => void;

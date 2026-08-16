@@ -27,6 +27,16 @@ export class InMemoryStyleLanguageRegistry implements StyleLanguageRegistry {
   private readonly handlersByExtension: Map<string, StyleLanguageHandler> = new Map();
 
   register(handler: StyleLanguageHandler): void {
+    // Defensive guard: a malformed handler must not corrupt the registry or
+    // prevent other handlers from registering (US1 edge case: a styling
+    // language module that fails to load degrades gracefully while the rest of
+    // the system keeps operating on the already-registered languages).
+    if (!handler || typeof handler.name !== "string" || handler.name.length === 0) {
+      return;
+    }
+    if (!Array.isArray(handler.extensions) || handler.extensions.length === 0) {
+      return;
+    }
     this.handlersByName.set(handler.name, handler);
     for (const ext of handler.extensions) {
       this.handlersByExtension.set(ext.toLowerCase(), handler);

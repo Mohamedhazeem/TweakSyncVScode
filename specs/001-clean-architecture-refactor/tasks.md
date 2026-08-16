@@ -143,14 +143,14 @@
 
 **Purpose**: Final integration, cleanup, and validation
 
-- [ ] T049 [P] Verify all edge cases from spec.md are handled (failed handler load, circular deps, complexity limits)
-- [ ] T050 [P] Run quickstart.md validation scenarios end-to-end
-- [ ] T051 [P] Verify no single source file exceeds 300 lines
-- [ ] T052 [P] Verify zero circular dependencies between modules
-- [ ] T053 [P] Ensure all WebSocket and webview message contracts are typed
-- [ ] T054 Remove or archive old monolithic files (`src/scripts/updateCSSContent.ts`, `src/scripts/temporaryId.ts`, `src/disposable/temporaryIdDisposable.ts`, etc.) only after new modules are verified
-- [ ] T055 Update README.md with new architecture overview and contribution guidelines
-- [ ] T056 Final integration test: verify extension activates, server starts, CSS updates flow, and new handler registration works
+- [X] T049 [P] Verify all edge cases from spec.md are handled (failed handler load, circular deps, complexity limits)
+- [X] T050 [P] Run quickstart.md validation scenarios end-to-end
+- [X] T051 [P] Verify no single source file exceeds 300 lines
+- [X] T052 [P] Verify zero circular dependencies between modules
+- [X] T053 [P] Ensure all WebSocket and webview message contracts are typed
+- [X] T054 Remove or archive old monolithic files (`src/scripts/updateCSSContent.ts`, `src/scripts/temporaryId.ts`, `src/disposable/temporaryIdDisposable.ts`, etc.) only after new modules are verified
+- [X] T055 Update README.md with new architecture overview and contribution guidelines
+- [X] T056 Final integration test: verify extension activates, server starts, CSS updates flow, and new handler registration works
 
 ---
 
