@@ -109,13 +109,13 @@
 
 ### Implementation for User Story 3
 
-- [ ] T037 [P] [US3] Split `updateCSSContent.ts` into `src/domain/style/css/parser.ts` and `src/domain/style/css/updater.ts`
-- [ ] T038 [P] [US3] Split `temporaryIdDisposable.ts` into focused disposable modules under `src/infrastructure/vscode/disposables/`
-- [ ] T039 [P] [US3] Split `watchCollectedFiles.ts` into `src/domain/watcher/file-watcher.ts` and `src/infrastructure/vscode/disposables/file-watcher.ts`
-- [ ] T040 [P] [US3] Move `updateRule.ts` to `src/domain/style/css/updater.ts`
-- [ ] T041 [P] [US3] Move `elementStyles.ts` and `elementDetails.ts` to `src/domain/messaging/handlers/`
-- [ ] T042 [US3] Add module-level README or index files documenting module responsibilities
-- [ ] T043 [US3] Ensure all module names match their responsibilities (no misleading names)
+- [X] T037 [P] [US3] Split `updateCSSContent.ts` into `src/domain/style/css/parser.ts` and `src/domain/style/css/updater.ts`
+- [X] T038 [P] [US3] Split `temporaryIdDisposable.ts` into focused disposable modules under `src/infrastructure/vscode/disposables/`
+- [X] T039 [P] [US3] Split `watchCollectedFiles.ts` into `src/domain/watcher/temporary-id.ts` and `src/infrastructure/vscode/disposables/file-watcher.ts`
+- [X] T040 [P] [US3] Move `updateRule.ts` to `src/domain/style/css/updater.ts`
+- [X] T041 [P] [US3] Move `elementStyles.ts` and `elementDetails.ts` to `src/infrastructure/messaging/handlers/` (infrastructure layer, not `domain`, to avoid a domain↔application cycle and keep `domain/` pure)
+- [X] T042 [US3] Add module-level README or index files documenting module responsibilities
+- [X] T043 [US3] Ensure all module names match their responsibilities (no misleading names)
 
 **Checkpoint**: At this point, User Stories 1, 2, AND 3 should all work independently. Codebase boundaries are clear and navigable.
 

@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import * as path from "path";
 import { CommandDeps } from "./types";
 import { FileIdMap } from "../../types/ElementTypes";
-import { removeTemporaryIds } from "../../domain/watcher/file-watcher";
+import { removeTemporaryIds } from "../../domain/watcher/temporary-id";
 import { isSupportedFileType, allowedCssExtensions, allowedHtmlExtensions } from "../../utils/isSupportedFileType";
 
 /**

@@ -8,7 +8,7 @@ import {
 } from "../interfaces";
 import { WebviewMessageBus } from "../../webview/message-bus";
 import { FileIdMap } from "../../../types/ElementTypes";
-import { injectTemporaryIds, removeTemporaryIds } from "../../../domain/watcher/file-watcher";
+import { injectTemporaryIds, removeTemporaryIds } from "../../../domain/watcher/temporary-id";
 import { extractIdsFromCode } from "../../../utils/extractIdsFromCode";
 import {
   isSupportedFileType,

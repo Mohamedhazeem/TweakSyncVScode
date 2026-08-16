@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { injectTemporaryIds, removeTemporaryIds } from "../domain/watcher/file-watcher";
+import { injectTemporaryIds, removeTemporaryIds } from "../domain/watcher/temporary-id";
 
 export const enum TempororyIdMode {
   inject,

@@ -1,7 +1,7 @@
 import { ElementDetails, ElementStyles } from "../types/ElementTypes";
 import { isElementDetails, isElementStyles } from "../utils/elementHelper";
-import { elementStyles } from "./elementStyles";
-import { elementDetails } from "./elementDetails";
+import { elementStyles } from "@/infrastructure/messaging/handlers/elementStyles";
+import { elementDetails } from "@/infrastructure/messaging/handlers/elementDetails";
 import * as vscode from "vscode";
 export async function handleWebSocketMessage(
   message: ElementDetails | ElementStyles,

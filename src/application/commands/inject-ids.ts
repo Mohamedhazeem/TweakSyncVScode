@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { CommandDeps } from "./types";
 import { FileIdMap } from "../../types/ElementTypes";
-import { injectTemporaryIds } from "../../domain/watcher/file-watcher";
+import { injectTemporaryIds } from "../../domain/watcher/temporary-id";
 import { extractIdsFromCode } from "../../utils/extractIdsFromCode";
 
 const SUPPORTED_LANGS = ["javascriptreact", "typescriptreact", "html"];
