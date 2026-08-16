@@ -245,3 +245,22 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - Tests are OPTIONAL - not included unless explicitly requested
 - Total task count: 56
+
+---
+
+## Phase 8: Convergence
+
+**Purpose**: Close the gap between the clean-architecture specification/plan and the
+current code. The new `domain`/`application`/`infrastructure`/`webview` layers are in place
+and the `domain` layer is verified pure (no VS Code/`ws` imports), but several legacy
+monoliths remain wired into the composition root and the new layers still couple to them.
+These tasks finish the Strangler-Fig migration and the cross-cutting concerns the spec
+mandates. No application code is modified here — completing these is the job of
+`/speckit.implement`.
+
+- [X] T057 Reimplement the legacy `src/disposable/webViewDisposable.ts`, `src/scripts/statusBar.ts`, `src/scripts/websocket.ts`, `src/scripts/webView.ts`, and `src/scripts/server.ts` behind the new vscode wrappers, `WebSocketServerPort`, and `WebviewMessageBus` so they can be deleted per FR-001, US2, US3, and the plan's Strangler-Fig migration strategy
+- [X] T058 Remove the dependency of `src/infrastructure/messaging/handlers/elementStyles.ts` and `elementDetails.ts` on the legacy `@/scripts/websocket` `sendMessageToClient`; route outbound client messages through `WebSocketServerPort`/`OutgoingWebSocketMessage` per FR-001, FR-002, and the Clean Architecture unidirectional-dependency principle
+- [X] T059 Align `src/domain/messaging/contracts.ts` with the real wire format (the `WebSocketMessage` union in `types/ElementTypes.ts` uses `action` discriminators) or delete it and document the live contracts, so message contracts are single-source and accurate per FR-002, T053, and SC-005
+- [X] T060 Add unit tests for the new modules (e.g. `InMemoryStyleLanguageRegistry`, `StyleService`, `CssStyleHandler`, `domain/style/css/parser`, `updater`) that run under the existing `jest.config.js` without VS Code APIs, proving independent module testability per FR-004, SC-002, and the Extensibility & Testability principle
+- [X] T061 Register the `inject-ids` command (`src/application/commands/inject-ids.ts`) in the composition root (`container.ts`) if the watch flow requires it, or remove the orphaned module if superseded by the temporary-id disposable, per T034 and the clean-boundary goal
+- [X] T062 Migrate ESLint from the legacy `.eslintrc.json` to a flat `eslint.config.js` (or pin ESLint to a v8-compatible range) so `npm run lint` passes per the constitution's Development Workflow and Technology Constraints

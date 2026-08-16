@@ -9,14 +9,22 @@
       "@application/*": ["./src/application/*"],
       "@infrastructure/*": ["./src/infrastructure/*"],
       "@webview/*": ["./src/webview/*"],
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "src/*": ["./src/*"]
     },
     "sourceMap": true,
     "rootDir": "src",
+    "types": ["mocha", "node", "vscode"],
     "strict": true /* enable all strict type-checking options */
     /* Additional Checks */
     // "noImplicitReturns": true, /* Report error when not all code paths in function return a value. */
     // "noFallthroughCasesInSwitch": true, /* Report errors for fallthrough cases in switch statement. */
     // "noUnusedParameters": true,  /* Report errors on unused parameters. */
-  }
+  },
+  "exclude": [
+    "src/domain/**/*.test.ts",
+    "src/application/**/*.test.ts",
+    "src/infrastructure/**/*.test.ts",
+    "src/webview/**/*.test.ts"
+  ]
 }

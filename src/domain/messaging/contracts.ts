@@ -1,43 +1,21 @@
-import { ExternalStyles, FileIdMap } from "../../types/ElementTypes";
+import { ClientOutboundMessage, FileIdMap } from "../../types/ElementTypes";
 
 /**
- * Message contracts for inter-layer communication. These interfaces replace the
- * previously implicit, loosely-typed message objects with explicit,
- * compile-time-verified contracts (Constitution: explicit versioned interfaces
- * for inter-module communication).
+ * Message contracts for inter-layer communication. This module is the single
+ * source of truth for the wire shapes TweakSync speaks. It intentionally does
+ * NOT redefine the inbound Chrome client messages: those live as the
+ * `WebSocketMessage` union in `types/ElementTypes.ts` (discriminated by
+ * `action`) so there is exactly one definition per wire channel.
+ *
+ * Channels:
+ * - Inbound  Chrome -> VS Code : `WebSocketMessage` in `types/ElementTypes.ts`
+ *   (handlers narrow it with `isElementDetails` / `isElementStyles`).
+ * - Outbound VS Code -> Chrome : `ClientOutboundMessage` (also in
+ *   `types/ElementTypes.ts`), sent via `WebSocketServerPort.sendToClient`.
+ * - Extension <-> Webview      : `ExtensionToWebviewMessage` /
+ *   `WebviewToExtensionMessage` below, exchanged via `WebviewMessageBus`
+ *   (Constitution: explicit, versioned interfaces for inter-module comms).
  */
-
-// ---------------------------------------------------------------------------
-// WebSocket messages (Chrome client <-> Extension host)
-// ---------------------------------------------------------------------------
-
-export interface ElementDetailsMessage {
-  type: "ElementDetails";
-  element: {
-    tagName: string;
-    attributes: Record<string, string>;
-    textContent?: string;
-    computedStyles?: Record<string, string>;
-  };
-  sourceFile: string;
-  sourceLine: number;
-}
-
-export interface ElementStylesMessage {
-  type: "ElementStyles";
-  styles: ExternalStyles;
-  sourceFile: string;
-}
-
-export type IncomingWebSocketMessage = ElementDetailsMessage | ElementStylesMessage;
-
-export interface ServerStatusMessage {
-  type: "ServerStatus";
-  isRunning: boolean;
-  isConnected: boolean;
-}
-
-export type OutgoingWebSocketMessage = ServerStatusMessage;
 
 // ---------------------------------------------------------------------------
 // Webview messages (Extension host <-> Webview panel)
@@ -62,3 +40,5 @@ export interface WebviewToExtensionMessage {
     | "startServer";
   value?: unknown;
 }
+
+export type { ClientOutboundMessage };

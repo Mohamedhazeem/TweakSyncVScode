@@ -32,6 +32,11 @@
         "command": "tweakSync.showPanel",
         "title": "Open TweakSync Hub",
         "category": "TweakSync"
+      },
+      {
+        "command": "tweakSync.injectIds",
+        "title": "Inject Temporary IDs",
+        "category": "TweakSync"
       }
     ],
     "icons": {
@@ -56,7 +61,7 @@
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
-    "lint": "eslint src --ext ts",
+    "lint": "eslint src",
     "test": "vscode-test",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "build:domain": "tsc -p tsconfig.domain.json",
@@ -74,6 +79,7 @@
     "@types/babel__core": "^7.20.5",
     "@types/babel__generator": "^7.27.0",
     "@types/babel__traverse": "^7.28.0",
+    "@types/jest": "^29.5.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "26.x",
     "@types/postcss-safe-parser": "^5.0.4",
@@ -81,9 +87,6 @@
     "@types/react-dom": "^19.2.4",
     "@types/vscode": "^1.125.0",
     "@types/ws": "^8.18.1",
-    "@types/jest": "^29.5.0",
-    "jest": "^29.7.0",
-    "jest-environment-jsdom": "^29.7.0",
     "@typescript-eslint/eslint-plugin": "^8.67.0",
     "@typescript-eslint/parser": "^8.67.0",
     "@vscode/test-cli": "^0.0.11",
@@ -91,10 +94,12 @@
     "bufferutil": "^4.1.0",
     "copy-webpack-plugin": "^14.0.0",
     "eslint": "^10.8.1",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "mini-css-extract-plugin": "^2.10.2",
     "postcss-loader": "^8.2.1",
     "ts-loader": "^9.6.2",
-    "typescript": "^7.0.2",
+    "typescript": "^5.9.3",
     "utf-8-validate": "^6.0.6",
     "webpack": "^5.109.2",
     "webpack-cli": "^7.2.2"

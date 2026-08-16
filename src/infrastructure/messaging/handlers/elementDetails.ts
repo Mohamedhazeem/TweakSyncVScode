@@ -7,7 +7,7 @@ import { getCurrentElementText } from "@/utils/getCurrentElementText";
 import { createHtmlElement } from "@/utils/createHtmlElement";
 import * as path from "path";
 import { TWEAKSYNC_ID } from "@/utils/constant";
-import { sendMessageToClient } from "@/scripts/websocket";
+import { WebSocketServerPort } from "@/infrastructure/websocket/types";
 
 /**
  * Handles an incoming `ElementDetails` message from the Chrome extension by
@@ -16,7 +16,11 @@ import { sendMessageToClient } from "@/scripts/websocket";
  * `messaging/handlers` as the inbound adapter for element edits; it is
  * infrastructure (not domain) because it drives VS Code workspace edits.
  */
-export async function elementDetails(message: ElementDetails, context: vscode.ExtensionContext) {
+export async function elementDetails(
+  message: ElementDetails,
+  context: vscode.ExtensionContext,
+  server: WebSocketServerPort
+) {
   const { temporaryId, tagName, textContent, attributes } = message.details;
 
   if (attributes && attributes[TWEAKSYNC_ID]) {
@@ -28,7 +32,7 @@ export async function elementDetails(message: ElementDetails, context: vscode.Ex
   const htmlReactFiles: FileIdMap[] = context.workspaceState.get("selectedHtmlReactFiles", []);
 
   if (htmlReactFiles.length === 0) {
-    sendMessageToClient({
+    server.sendToClient({
       action: "failedToApply",
       message: "No HTML files found in TweakSync VS Code.",
     });
@@ -93,13 +97,13 @@ export async function elementDetails(message: ElementDetails, context: vscode.Ex
     );
     await Promise.all(savePromises);
     console.log("All files saved successfully.");
-    sendMessageToClient({
+    server.sendToClient({
       action: "appliedElementSucessfully",
       message: "Applied Element Sucessfully.",
     });
   } else {
     console.log("Failed to apply workspace edits.");
-    sendMessageToClient({
+    server.sendToClient({
       action: "failedToApply",
       message: "Failed to apply edits",
     });

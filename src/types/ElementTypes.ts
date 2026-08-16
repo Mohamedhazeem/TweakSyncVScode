@@ -51,6 +51,17 @@ export type SelectorProcessType = [
 
 export type WebSocketMessage = ElementDetails | ElementStyles;
 
+/**
+ * Outbound message sent from the extension host to the connected Chrome client
+ * over the WebSocket. Mirrors the loose `{ action, message }` envelope the
+ * Chrome client already understands. Inbound messages are described by
+ * {@link WebSocketMessage} (same `action` discriminator, opposite direction).
+ */
+export interface ClientOutboundMessage {
+  action: string;
+  message: string;
+}
+
 export type CreateHtmlElement = {
   fileExtension: string;
   newText: string;

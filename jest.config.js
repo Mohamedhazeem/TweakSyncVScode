@@ -6,7 +6,7 @@ const moduleNameMapper = {
   '^@/(.*)$': '<rootDir>/src/$1'
 };
 
-const transform = ['<rootDir>/scripts/jest-babel-transform.cjs'];
+const transform = '<rootDir>/scripts/jest-babel-transform.cjs';
 
 /** @type {import('jest').Config} */
 module.exports = {

@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import { ElementStyles } from "@/types/ElementTypes";
 import { StyleService } from "@/application/services/style-service";
 import { createDefaultRegistry } from "@/domain/style/registry";
-import { sendMessageToClient } from "@/scripts/websocket";
+import { WebSocketServerPort } from "@/infrastructure/websocket/types";
 
 /**
  * Handles an incoming `ElementStyles` message from the Chrome extension by
@@ -12,7 +12,11 @@ import { sendMessageToClient } from "@/scripts/websocket";
  * case invocation; it is intentionally infrastructure (not domain) because it
  * is coupled to VS Code file I/O and the WebSocket client.
  */
-export async function elementStyles(message: ElementStyles, context: vscode.ExtensionContext) {
+export async function elementStyles(
+  message: ElementStyles,
+  context: vscode.ExtensionContext,
+  server: WebSocketServerPort
+) {
   console.time("elementStyles");
   const { styles } = message;
   const { external } = styles;
@@ -21,7 +25,7 @@ export async function elementStyles(message: ElementStyles, context: vscode.Exte
 
   if (selectedCssFiles.length === 0) {
     console.log("No selected CSS files");
-    sendMessageToClient({
+    server.sendToClient({
       action: "noSelectedCssFiles",
       message: "No selected CSS files found in TweakSync VS Code",
     });
@@ -58,13 +62,13 @@ export async function elementStyles(message: ElementStyles, context: vscode.Exte
 
   try {
     await service.applyToFiles(selectedCssFiles, external);
-    sendMessageToClient({
+    server.sendToClient({
       action: "appliedStyleSucessfully",
       message: "Applied Style Sucessfully.",
     });
   } catch (error) {
     console.error("Error applying styles:", error);
-    sendMessageToClient({
+    server.sendToClient({
       action: "failedToApply",
       message:
         "Failed to apply edits. Make sure you are connected with VS Code and select the element you want to apply changes.",

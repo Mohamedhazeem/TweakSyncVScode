@@ -1,7 +1,8 @@
 import * as vscode from "vscode";
 import * as path from "path";
-import { getWebviewContent } from "../scripts/webView";
-import { server, startServer, stopServer } from "../scripts/websocket";
+import { getWebviewContent } from "../infrastructure/webview/content";
+import { WebSocketServerPort } from "../infrastructure/websocket/types";
+import { WebviewMessageBus } from "../infrastructure/webview/message-bus";
 import {
   allowedCssExtensions,
   allowedHtmlExtensions,
@@ -13,69 +14,86 @@ import { FileIdMap } from "../types/ElementTypes";
 import { getIdsForFile } from "../utils/extractIdsFromCode";
 import { getCurrentPanel } from "../utils/webviewPanel";
 
+/**
+ * Registers the `tweakSync.showPanel` command, manages the webview panel
+ * lifecycle, and routes inbound webview messages to extension commands. Depends
+ * on the {@link WebSocketServerPort} (start/stop + running state) and the
+ * {@link WebviewMessageBus} for outbound notifications, replacing the legacy
+ * `scripts/webView.ts` + `scripts/websocket.ts` reach into the `ws` singleton.
+ */
 export function webViewPanelOpen(
   setPanel: (panel: vscode.WebviewPanel | undefined) => void,
-  context: vscode.ExtensionContext
+  context: vscode.ExtensionContext,
+  server: WebSocketServerPort,
+  bus: WebviewMessageBus
 ) {
   return vscode.commands.registerCommand("tweakSync.showPanel", () => {
     console.log("Command 'tweakSync.showPanel' invoked");
-    const currentPanel = getCurrentPanel();
-    console.log(currentPanel);
-    if (currentPanel) {
-      console.log("Panel already exists, revealing it.");
-      currentPanel.reveal(vscode.ViewColumn.One);
-    } else {
-      console.log("Creating new panel.");
-      const panel = vscode.window.createWebviewPanel(
-        "tweakSyncPanel",
-        "TweakSync Hub",
-        vscode.ViewColumn.One,
-        {
-          enableScripts: true,
-          localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, "out", "webview"))],
-        }
-      );
+    const existingPanel = getCurrentPanel();
+    console.log(existingPanel);
 
-      panel.iconPath = {
-        dark: vscode.Uri.file(
-          path.join(context.extensionPath, "out", "webview", "resources", "icon16.png")
-        ),
-        light: vscode.Uri.file(
-          path.join(context.extensionPath, "out", "webview", "resources", "icon16.png")
-        ),
-      };
-      panel.webview.html = getWebviewContent(panel, context.extensionPath);
-      panel.onDidDispose(
-        () => {
-          console.log("Panel disposed.");
-          setPanel(undefined);
-        },
-        null,
-        context.subscriptions
-      );
-      setPanel(panel);
-      OnReceiveMessage(panel, context);
+    if (existingPanel) {
+      console.log("Panel already exists, revealing it.");
+      existingPanel.reveal(vscode.ViewColumn.One);
+      return;
     }
+
+    console.log("Creating new panel.");
+    const panel = vscode.window.createWebviewPanel(
+      "tweakSyncPanel",
+      "TweakSync Hub",
+      vscode.ViewColumn.One,
+      {
+        enableScripts: true,
+        localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, "out", "webview"))],
+      }
+    );
+
+    panel.iconPath = {
+      dark: vscode.Uri.file(
+        path.join(context.extensionPath, "out", "webview", "resources", "icon16.png")
+      ),
+      light: vscode.Uri.file(
+        path.join(context.extensionPath, "out", "webview", "resources", "icon16.png")
+      ),
+    };
+    panel.webview.html = getWebviewContent(panel, context.extensionPath);
+    panel.onDidDispose(
+      () => {
+        console.log("Panel disposed.");
+        setPanel(undefined);
+      },
+      null,
+      context.subscriptions
+    );
+    setPanel(panel);
+    OnReceiveMessage(panel, context, server, bus);
   });
 }
-function OnReceiveMessage(currentPanel: vscode.WebviewPanel, context: vscode.ExtensionContext) {
+
+function OnReceiveMessage(
+  currentPanel: vscode.WebviewPanel,
+  context: vscode.ExtensionContext,
+  server: WebSocketServerPort,
+  bus: WebviewMessageBus
+) {
   currentPanel.webview.onDidReceiveMessage(
     async (message) => {
       switch (message.command) {
         case "startTweakSync":
           if (message.value) {
             vscode.window.showInformationMessage(message.value);
-            startServer(currentPanel, context);
+            server.start();
           } else {
             vscode.window.showInformationMessage(message.value);
-            stopServer(currentPanel);
+            server.stop();
           }
           return;
         case "requestServerStatus":
-          currentPanel?.webview.postMessage({ command: "serverStarted", value: server.isRunning });
-          currentPanel?.webview.postMessage({ command: "serverConnected", value: server.isConnected });
+          bus.postMessage({ command: "serverStarted", value: server.isRunning });
+          bus.postMessage({ command: "serverConnected", value: server.isConnected });
           break;
-        case "selectFiles":
+        case "selectFiles": {
           const uris = await vscode.window.showOpenDialog({
             canSelectMany: true,
             openLabel: "Select Files",
@@ -86,23 +104,14 @@ function OnReceiveMessage(currentPanel: vscode.WebviewPanel, context: vscode.Ext
           });
 
           if (uris) {
-            // Assuming cssFile and htmlFile functions return URIs
-            // const cssUris = cssFile(uris, allowedCssExtensions);
             const htmlReactUris = htmlFile(uris, allowedHtmlExtensions);
 
-            // Convert URIs to strings
-
-            // Retrieve previously stored files
             let previousCssFiles = context.workspaceState.get<string[]>("selectedCssFiles", []);
             let previousHtmlReactFiles = context.workspaceState.get<FileIdMap[]>(
               "selectedHtmlReactFiles",
               []
             );
 
-            // Update CSS files
-            // previousCssFiles = Array.from(new Set([...previousCssFiles, ...cssFileUris]));
-
-            // Create a map to update HTML/React files
             const fileIdMapDict = new Map<string, FileIdMap>(
               previousHtmlReactFiles.map((file) => [file.fileUri, file])
             );
@@ -122,27 +131,23 @@ function OnReceiveMessage(currentPanel: vscode.WebviewPanel, context: vscode.Ext
               }
             });
 
-            // Convert dictionary back to array
             previousHtmlReactFiles = Array.from(fileIdMapDict.values());
 
-            // Update the workspace state
-            // context.workspaceState.update("selectedCssFiles", previousCssFiles);
             context.workspaceState.update("selectedCssFiles", previousCssFiles);
             context.workspaceState.update("selectedHtmlReactFiles", previousHtmlReactFiles);
 
-            // Send updated files to the webview
             const updatedFiles = {
-              // css: previousCssFiles,
               css: previousCssFiles,
               htmlReact: previousHtmlReactFiles,
             };
-            currentPanel.webview.postMessage({
+            bus.postMessage({
               command: "updateFileList",
               files: updatedFiles,
             });
           }
           break;
-        case "selectCssFile":
+        }
+        case "selectCssFile": {
           const cssUri = await vscode.window.showOpenDialog({
             canSelectMany: false,
             openLabel: "Select File",
@@ -153,14 +158,10 @@ function OnReceiveMessage(currentPanel: vscode.WebviewPanel, context: vscode.Ext
           });
 
           if (cssUri) {
-            // Assuming cssFile and htmlFile functions return URIs
             const cssUris = cssFile(cssUri, allowedCssExtensions);
 
-            // Convert URIs to strings
             const cssFileUris = cssUris.map((uri) => uri.toString());
 
-            // Retrieve previously stored files
-            // let previousCssFiles = context.workspaceState.get<string[]>("selectedCssFiles", []);
             const lastCssFileUri =
               cssFileUris.length > 0 ? cssFileUris[cssFileUris.length - 1] : undefined;
             let previousHtmlReactFiles = context.workspaceState.get<FileIdMap[]>(
@@ -168,99 +169,23 @@ function OnReceiveMessage(currentPanel: vscode.WebviewPanel, context: vscode.Ext
               []
             );
 
-            // Update CSS files
-            // previousCssFiles = Array.from(new Set([...previousCssFiles, ...cssFileUris]));
-
-            // Update the workspace state
-            // context.workspaceState.update("selectedCssFiles", previousCssFiles);
             context.workspaceState.update(
               "selectedCssFiles",
               lastCssFileUri ? [lastCssFileUri] : []
             );
             context.workspaceState.update("selectedHtmlReactFiles", previousHtmlReactFiles);
 
-            // Send updated files to the webview
             const updatedFiles = {
-              // css: previousCssFiles,
               css: lastCssFileUri ? [lastCssFileUri] : [],
               htmlReact: previousHtmlReactFiles,
             };
-            currentPanel.webview.postMessage({
+            bus.postMessage({
               command: "updateFileList",
               files: updatedFiles,
             });
           }
           break;
-        // case "editFile":
-        //   const uri = await vscode.window.showOpenDialog({
-        //     canSelectMany: false,
-        //     openLabel: "Select File",
-        //     canSelectFiles: true,
-        //     canSelectFolders: false,
-        //     title: "Edit File for TweakSync",
-        //   });
-
-        //   if (uri && uri.length > 0) {
-        //     // Filter URIs based on file extension
-        //     const cssUris = uri.filter((uri) => {
-        //       const ext = path.extname(uri.fsPath);
-        //       return allowedCssExtensions.includes(ext);
-        //     });
-
-        //     const htmlReactUris = uri.filter((uri) => {
-        //       const ext = path.extname(uri.fsPath);
-        //       return allowedHtmlExtensions.includes(ext);
-        //     });
-
-        //     if (cssUris.length > 0 || htmlReactUris.length > 0) {
-        //       const newFileUri = cssUris[0]?.toString() || htmlReactUris[0]?.toString();
-
-        //       // Retrieve existing files from workspace state
-        //       let previousCssFiles = context.workspaceState.get<string[]>("selectedCssFiles", []);
-        //       // let previousHtmlReactFiles = context.workspaceState.get<string[]>(
-        //       //   "selectedHtmlReactFiles",
-        //       //   []
-        //       // );
-        //       let previousHtmlReactFiles = context.workspaceState.get<FileIdMap[]>(
-        //         "selectedHtmlReactFiles",
-        //         []
-        //       );
-
-        //       // Replace the old file with the new one
-        //       const updatedCssFiles = previousCssFiles.map((file) =>
-        //         file === message.oldFile ? newFileUri : file
-        //       );
-
-        //       // const updatedHtmlReactFiles = previousHtmlReactFiles.map((file) =>
-        //       //   file === message.oldFile ? newFileUri : file
-        //       // );
-        //       const updatedHtmlReactFiles = previousHtmlReactFiles.map((file) => {
-        //         if (file.fileUri === message.oldFile) {
-        //           return { ...file, fileUri: newFileUri };
-        //         }
-        //         return file;
-        //       });
-
-        //       // Update workspace state with the edited files list
-        //       context.workspaceState.update("selectedCssFiles", updatedCssFiles);
-        //       context.workspaceState.update("selectedHtmlReactFiles", updatedHtmlReactFiles);
-
-        //       // Combine updated lists for Webview
-        //       const updatedFiles = {
-        //         css: updatedCssFiles,
-        //         htmlReact: updatedHtmlReactFiles,
-        //       };
-
-        //       // Post the updated file list to the Webview
-        //       if (currentPanel?.webview) {
-        //         currentPanel.webview.postMessage({
-        //           command: "updateFileList",
-        //           files: updatedFiles,
-        //         });
-        //       }
-        //     }
-        //   }
-        //   break;
+        }
         case "removeFiles":
           vscode.commands.executeCommand("tweakSync.removeFiles", message.file, message.index);
           break;
@@ -271,14 +196,13 @@ function OnReceiveMessage(currentPanel: vscode.WebviewPanel, context: vscode.Ext
           vscode.commands.executeCommand("tweakSync.watchFiles");
           break;
         case "watchSingleFile":
-          const fileUri = message.file;
-          vscode.commands.executeCommand("tweakSync.watchSingleFile", fileUri);
+          vscode.commands.executeCommand("tweakSync.watchSingleFile", message.file);
           break;
-          break;
-        case "getStoredFiles":
+        case "getStoredFiles": {
           const updatedFiles = await validateStoredFiles(context);
-          currentPanel?.webview.postMessage({ command: "updateFileList", files: updatedFiles });
+          bus.postMessage({ command: "updateFileList", files: updatedFiles });
           break;
+        }
       }
     },
     undefined,

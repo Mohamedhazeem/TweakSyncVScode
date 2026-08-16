@@ -1,5 +1,5 @@
 import { StyleLanguageRegistry } from "../../domain/style/registry";
-import { StyleChanges } from "../../domain/style/types";
+import { StyleChanges, StyleRule, AtRule, ParsedStyleDocument } from "../../domain/style/types";
 
 /** Reads the current text content of a style file identified by URI string. */
 export interface StyleFileReader {
@@ -52,7 +52,13 @@ export class StyleService {
       const document = handler.parse(original);
       const updated = handler.update(document, changes);
 
-      if (updated !== original) {
+      // Compare structurally rather than by raw string: `update` re-serializes
+      // via postcss, which reformats (e.g. re-indents) even when the change is
+      // a no-op, so an exact-string check would always report a write. The
+      // declaration maps are normalized to plain objects for stable comparison.
+      const changed = !isStructurallyEqual(handler.parse(updated), document);
+
+      if (changed) {
         await this.deps.writer.write(fileUri, updated);
         this.deps.onApplied?.(fileUri);
         results.push({ fileUri, updated: true });
@@ -63,4 +69,36 @@ export class StyleService {
 
     return results;
   }
+}
+
+/**
+ * Structural equality that ignores raw-text formatting. Declaration `Map`s are
+ * converted to plain objects so `JSON.stringify` reflects their contents
+ * (it would otherwise serialize a `Map` as `{}`).
+ */
+function isStructurallyEqual(
+  a: ParsedStyleDocument,
+  b: ParsedStyleDocument
+): boolean {
+  return (
+    JSON.stringify(normalizeRules(a.rules)) ===
+      JSON.stringify(normalizeRules(b.rules)) &&
+    JSON.stringify(normalizeAtRules(a.atRules)) ===
+      JSON.stringify(normalizeAtRules(b.atRules))
+  );
+}
+
+function normalizeRules(rules: StyleRule[]): unknown {
+  return rules.map((rule) => ({
+    selector: rule.selector,
+    declarations: Object.fromEntries(rule.declarations),
+  }));
+}
+
+function normalizeAtRules(atRules: AtRule[]): unknown {
+  return atRules.map((at) => ({
+    name: at.name,
+    params: at.params,
+    rules: normalizeRules(at.rules),
+  }));
 }

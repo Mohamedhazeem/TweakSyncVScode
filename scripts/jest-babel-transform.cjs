@@ -19,7 +19,7 @@ module.exports = {
       configFile: false,
       sourceMaps: 'inline',
       presets: [
-        ['@babel/preset-env', { targets: { node: 'current' } }],
+        ['@babel/preset-env', { targets: { node: 'current' }, modules: 'commonjs' }],
         ['@babel/preset-react', { runtime: 'automatic' }],
         '@babel/preset-typescript'
       ]

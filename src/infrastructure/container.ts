@@ -10,10 +10,11 @@ import { SyncService } from "../application/services/sync-service";
 import { createStartServerHandler } from "../application/commands/start-server";
 import { createWatchFilesHandler } from "../application/commands/watch-files";
 import { createRemoveFilesHandler } from "../application/commands/remove-files";
+import { createInjectIdsHandler } from "../application/commands/inject-ids";
 import { createTemporaryIdDisposables } from "./vscode/disposables/temporary-id";
 import { createFileWatcherDisposable } from "./vscode/disposables/file-watcher";
 import { createWebviewDisposable } from "./vscode/disposables/webview";
-import { registerStatusBarCommands } from "../scripts/statusBar";
+import { createStatusBar } from "./vscode/status-bar";
 
 /**
  * Composition root (Dependency Injection container). Instantiates every port
@@ -73,10 +74,24 @@ export class CompositionRoot {
         bus: this.bus,
       })
     );
+    this.registry.register(
+      "tweakSync.injectIds",
+      createInjectIdsHandler({
+        workspaceState: this.workspaceState,
+        fs: this.fs,
+        window: this.window,
+        bus: this.bus,
+      })
+    );
     this.context.subscriptions.push(this.registry);
 
     this.context.subscriptions.push(
-      createWebviewDisposable(this.panelSetter, this.context)
+      createWebviewDisposable({
+        setPanel: this.panelSetter,
+        context: this.context,
+        server: websocketServer,
+        bus: this.bus,
+      })
     );
     this.context.subscriptions.push(
       createFileWatcherDisposable({
@@ -96,7 +111,7 @@ export class CompositionRoot {
       })
     );
 
-    registerStatusBarCommands(this.context);
+    this.context.subscriptions.push(createStatusBar(this.context, websocketServer, this.bus));
 
     this.context.subscriptions.push(new vscode.Disposable(() => websocketServer.stop()));
   }

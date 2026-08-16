@@ -4,7 +4,8 @@ import {
   WebSocketServerPort,
   MessageHandler,
   ConnectionStateListener,
-  OutgoingWebSocketMessage,
+  ExtensionToWebviewMessage,
+  ClientOutboundMessage,
 } from "./types";
 import { LOCAL_HOST, PORT } from "../../utils/constant";
 import { WebSocketClient } from "./client";
@@ -131,11 +132,11 @@ class WebSocketServerImpl implements WebSocketServerPort {
     this.connectionListeners.push(listener);
   }
 
-  broadcast(message: OutgoingWebSocketMessage): void {
+  broadcast(message: ExtensionToWebviewMessage): void {
     this.panel?.webview.postMessage(message);
   }
 
-  sendToClient(message: unknown): void {
+  sendToClient(message: ClientOutboundMessage): void {
     this.clients[0]?.send(message);
   }
 }
