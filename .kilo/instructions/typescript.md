@@ -10,7 +10,7 @@
 - Use the `@/` path alias for imports from `src/` where configured.
 - Prefer explicit types for public APIs and complex internals; use type inference for local variables when the type is obvious.
 - Prefer `interface` for object shapes; use `type` for unions, intersections, and aliases.
-- `const enum` is used for `TempororyIdMode` in `src/scripts/temporaryId.ts`.
+- `const enum` is used for `TemporaryIdMode` in `src/domain/watcher/temporary-id.ts`.
 - `any` is used for external message shapes and legacy typings.
 - Default exports are used in webview components.
 
